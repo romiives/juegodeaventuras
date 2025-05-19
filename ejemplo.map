@@ -1,0 +1,90 @@
+INICIO DE ARCHIVO
+HABITACIONES
+14
+0 Bosque (INICIO)
+Te adentras en un bosque donde nada es lo que parece
+1 Gruta (EVENTO)
+Investigas la gruta y te encuentras en una situacíón peculiar. 
+2 Sendero (COMBATE)
+Caminas por el sendero, cuando se te acerca un grupo de sospechosos! 
+3 Laguna (EVENTO)
+A la orilla de la laguna encuentras una gema... 
+4 Colina (COMBATE)
+Subes la colina y te encuentras en una batalla! 
+5 Llanura (EVENTO)
+Caminando por la llanura, cansado de tus viajes, notas algo extraño... 
+6 Pantano (FIN)
+Te encuentras en un pantano. El fango se pega a tus pies, y te da tanto asco que mueres :( 
+7 Caverna (FIN)
+Encuentras una apertura diminuta y oscura. Cualquier persona razonable se mantendría alejada, pero has visto muchos tiktok de exploración de cavernas. Te quedas atascado, y despues de una semana te mueres por abstinencia de redes sociales. 
+8 Fondo(FIN)
+Se te olvida que no eres un pez y te adentras al fondo de la laguna. Te encuentras a un pez que se le olvido que no es una persona. Sale al exterior y te reemplaza en la selección chilena. Quedas en el olvido, mientras un pez gana el mundial.
+9 Playa (FIN)
+La playa está tan comoda que te acuestas de chill. Te quedas dormido, y despiertas ayer. *Vuelves al nodo ante-anterior!* (Este es un ejemplo del requisito especial 3)
+10 Neblina (FIN)
+Caminas en subida hasta alcanzar las nubes. Estas mirando el atardecer cuando recuerdas que dejaste el horno prendido! Aún peor, notas que lo que pensabas que era el sol era realmente tu casa a lo lejos...  
+11 Tundra (FIN)
+¿Que es una tundra? Mueres.
+12 Aliens (FIN)
+Te recoge una nave alienígena. Te preguntan tu nombre y por mera casualidad es una palabra que hace cortocircuito en su cerebro! Salvaste a la humanidad :D 
+13 Suenho (FIN)
+Te quedas dormido y sueñas con una tarea de estructuras de datos donde tienes que hacer un juego. Llegas a la parte de escribir la historia y no se te ocurre mejor final que uno en el que el jugador se queda dormido y sueña con una tarea de estructuras de datos donde tienes que hacer un juego. Llegas a la parte de escribir la historia... 
+ARCOS
+13
+0 -> 1
+0 -> 6
+1 -> 2
+1 -> 7
+2 -> 3
+2 -> 4
+3 -> 8
+3 -> 9
+4 -> 10
+4 -> 5
+5 -> 11
+5 -> 12
+5 -> 13
+ENEMIGOS 
+4
+Pim | Vida 10 | Ataque 2 | Precision 0.8 | Probabilidad 0.2
+Pomplin | Vida 12 | Ataque 7 | Precision 0.3 | Probabilidad 0.4
+Tomp | Vida 30 | Ataque 100 | Precision 0.001 | Probabilidad 0.1
+Momplin | Vida 1 | Ataque 5 | Precision 1 | Probabilidad 0.3
+EVENTOS
+3
+&
+Tesoro
+Probabilidad 0.3
+Encuentras un tesoro!...
+A: Abrirlo
+Era una mímica! El terror afecta tu psique.
+-0.2 PRECISION
+B: Dejarlo
+Se ve sus, lo dejas pasar.
+Ninguna consecuencia.
+&
+Sentimiento
+Probabilidad 0.3
+Te empiezas a sentir extraño...
+A: Te acuestas en el suelo
+Te despiertas muy relajado y feliz!
++10 Vida
+B: Tratas de continuar
+Te mareas, te tropiezas, y te esguinzas la articulación metacarpofalángica!
+-5 Vida
+&
+Silueta
+Probabilidad 0.4
+Ves una silueta misteriosa a lo lejos.
+A: La tratas de dibujar.
+Logras un dibujo excelente, impresionando a todos tus amigos!
++7 Vida
+B: Lo tratas de identificar.
+Tras horas de forzar la vista logras entender que era una mancha en el cielo simplemente. Tu vista se agotó.
+-0.3 Precision
+MEJORAS DE COMBATE
++4 Vida
++0.1 Precision
++1 Ataque
++1 Recuperacion
+FIN DE ARCHIVO
