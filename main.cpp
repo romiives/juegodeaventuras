@@ -22,9 +22,7 @@ int main(){
     }
 
     string linea;
-    while(getline(archivo, linea)){
-        cout<< linea <<endl;
-    }
+    getline(archivo, linea);
 
     int totalHabitaciones;
     archivo >> totalHabitaciones;
@@ -55,6 +53,7 @@ int main(){
         habitaciones[id]= h;
     }
 
+    getline(archivo, linea);
     int cantidadArcos;
     archivo >> cantidadArcos;
     archivo.ignore();
