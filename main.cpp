@@ -27,7 +27,7 @@ int main(){
     int totalHabitaciones;
     archivo >> totalHabitaciones;
     archivo.ignore();
-    Habitacion** habitaciones = new Habitacion[totalHabitaciones];
+    Habitacion** habitaciones = new Habitacion*[totalHabitaciones];
 
     for(int i=0; i<totalHabitaciones; i++){
         string linea;
