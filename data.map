@@ -7,7 +7,7 @@ Te adentras en una selva y a tu alrededor observas mucha vegetación pero a la v
 1 Cueva (EVENTO)
 Observas una pared inusual, cubierta de un manto de hojas y caes en la cuenta de que es una cueva, en donde te esperara una situacion inesperada 
 2 Camino (COMBATE)
-Caminas por un camino lodoso y peligroso, en donde seras atacado por una pantera
+Caminas por un camino lodoso y peligroso, en donde serás atacado por una pantera
 3 Cascada (EVENTO)
 Llegas a una cascada y decides sumergirte por el calor, es ahi donde encuntras un tesoro
 4 Llanura (COMBATE)
@@ -18,7 +18,7 @@ Dejas atras a la tribu y caminas recto por un sendero, donde te das cuenta de qu
 Cae una rafaga de meteoritos mientras caminabas por el sendero y mueres 
 7 Terremoto (FIN)
 Mientras caminabas por el sendero se abre la tierra producto de un terremoto, caes en una de las llanuras y mueres
-8 Cabaña(FIN)
+8 Cabaña (FIN)
 entras en una cabaña y en la mesa hay comida, en ese momento te suena el estomago y recuerdas que no haz comido en 2 dias, decides comer y despues de un rato te empiezas a sentir mal, mueres porque la comida estaba envenenada
 9 Sueño (FIN)
 Entras a una cabaña, te sientas en un sillon y te quedas dormido, y despiertas ayer.
@@ -29,7 +29,7 @@ Entregas el tesoro buscado por la tribu hace miles de años y deciden no matarte
 12 Ahogamineto (FIN)
 te sumergiste demasiado en la laguna de la cascada, por lo que mueres al no llegar a la superficie
 13 Ruido (FIN)
-al entrar a la cueva, hiciste mucho ruido por loq ue desperta a la bestia, te ataco y fuiste comido por la bestia, estas muerto
+al entrar a la cueva, hiciste mucho ruido, el cual despierta a la bestia, te atacó y fuiste comido por la bestia, estas muerto
 ARCOS
 13
 0 -> 1
@@ -61,7 +61,7 @@ A: Intentas abrirlo bajo el agua
 El esfuerzo agota fisica y mentalmente 
 -5 de vida 
 B: Ignorar el cofre hundido 
-Sin riegos fisicos
+Sin riegos físicos, te salvaste apenitas!!
 Ninguna consecuencia
 &
 Grito a lo lejos 
@@ -70,9 +70,10 @@ Escuchas un grito a lo lejos en la selva, no sabes si es de un humano o de un an
 A: Corres hacia el sonido
 Solo era un nido de loros, te sientes aliviado
 +10 Vida
-B: Corres lo mas lejos posible 
+B: Corres lo más lejos posible
 Caes en el lodo y te esguinzas el tobillo
 -0,1 de precision
+-2 de vida
 &
 Observado
 Probabilidad 0.3
@@ -83,6 +84,7 @@ Haz sido atacado por un animal
 B: Te escondes y esperas para ver que es
 el animal se aleja, valio la pena esperar 
 +1 de vida 
+
 MEJORAS DE COMBATE
 +3 Vida
 +0.2 Precision
