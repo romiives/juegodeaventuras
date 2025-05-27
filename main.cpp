@@ -37,7 +37,7 @@ public:
 
     void mostrarEstado() const {
         cout << "Jugador ---> \nVida: " << vida << "\nAtaque: " << ataque
-             << "\nPrecisiónROMINAHOLA: " << precision << "\nRecuperación: " << recuperacion << endl;
+             << "\nPrecisión: " << precision << "\nRecuperación: " << recuperacion << endl;
     }
 };
 
@@ -150,7 +150,7 @@ bool cargarArchivo(const string& nombreArchivo) {
                 int id;
                 string nombreParte;
                 ss >> id;
-                getline(ss, nombreParte);
+                getline(ss>>ws, nombreParte);
                 getline(archivo, linea);
                 string tipo = obtenerTipoDesdeNombre(nombreParte);
                 habitaciones[id] = new Habitacion(id, nombreParte, linea, tipo);
