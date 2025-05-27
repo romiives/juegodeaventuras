@@ -43,6 +43,14 @@ public:
 
 //Struct y uso de data.map
 
+struct Enemigo{
+    string nombre;
+    int vida;
+    int ataque;
+    float precision;
+    float probabilidad;
+};
+
 struct NodoEnemigo{
     Enemigo enemigo;
     NodoEnemigo* sig;
@@ -91,8 +99,9 @@ struct Habitacion {
 
 struct Evento{
     string nombre;
+    float probabilidad;
     string descripcion;
-    string opcionaA;
+    string opcionA;
     string efectoA;
     string opcionB;
     string efectoB;
@@ -101,13 +110,6 @@ const int MAX_EVENTOS = 10;
 Evento eventos[MAX_EVENTOS];
 int totalEventos = 0;
 
-struct Enemigo{
-    string nombre;
-    int vida;
-    int ataque;
-    float precision;
-    float probabilidad;
-};
 const int MAX_ENEMIGOS = 10;
 Enemigo enemigos[MAX_ENEMIGOS];
 int totalEnemigos = 0;
@@ -288,6 +290,28 @@ void aplicarMejora(Jugador& jugador, const string& mejora){
     }
 }
 
+void aplicarEfecto(Jugador& jugador, const string& efecto){
+    stringstream ss(efecto);
+    string parte;
+    while (getline(ss, parte, ',')){
+        parte.erase(0, parte.find_first_not_of(" "));
+        parte.erase(parte.find_last_not_of(" ") + 1);
+        if (parte.find("Vida") != string::npos){
+            int cantidad=stoi(parte);
+            jugador.modificarVida(cantidad);
+        } else if (parte.find("Precision") != string::npos){
+            float cantidad=stof(parte);
+            jugador.mejorarPrecision(cantidad);
+        } else if (parte.find("Ataque") != string::npos){
+            int cantidad=stoi(parte);
+            jugador.mejorarAtaque(cantidad);
+        } else if (parte.find("Recuperacion") != string::npos){
+            int cantidad=stoi(parte);
+            jugador.mejorarRecuperacion(cantidad);
+        }
+    }
+}
+
 //cambiar nombre de habitación
 void jugar(Habitacion* actual, Jugador& jugador) {
     while (actual != NULL && jugador.estaVivo()) {
@@ -359,30 +383,17 @@ void jugar(Habitacion* actual, Jugador& jugador) {
     }
 }
 
-void aplicarEfecto(Jugador& jugador, const string& efecto){
-    stringstream ss(efecto);
-    string parte;
-    while (getline(ss, parte, ',')){
-        parte.erase(0, parte.find_first_not_of(" "));
-        parte.erase(parte.find_last_not_of(" ") + 1);
-        if (parte.find("Vida") != string::npos){
-            int cantidad=stoi(parte);
-            jugador.modificarVida(cantidad);
-        } else if (parte.find("Precision") != string::npos){
-            float cantidad=stof(parte);
-            jugador.mejorarPrecision(cantidad);
-        } else if (parte.find("Ataque") != string::npos){
-            int cantidad=stoi(parte);
-            jugador.mejorarAtaque(cantidad);
-        } else if (parte.find("Recuperacion") != string::npos){
-            int cantidad=stoi(parte);
-            jugador.mejorarRecuperacion(cantidad);
+//liberar memoria
+void liberarMemoria() {
+    for (int i = 0;i<MAX_HABITACIONES;i++){
+        if (habitaciones[i] != nullptr){
+            delete habitaciones[i];
+            habitaciones[i] = nullptr;
         }
     }
 }
 
 //Main
- 
 int main() {
     cout << "¡Bienvenido al juego!" << endl;
 
@@ -418,12 +429,3 @@ int main() {
     return 0;
 }
 
-//liberar memoria
-void liberarMemoria() {
-    for (int i = 0;i<MAX_HABITACIONES;i++){
-        if (habitaciones[i] != nullptr){
-            delete habitaciones[i];
-            habitaciones[i] = nullptr;
-        }
-    }
-}
