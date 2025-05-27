@@ -150,10 +150,11 @@ bool cargarArchivo(const string& nombreArchivo) {
                 int id;
                 string nombreParte;
                 ss >> id;
-                getline(ss>>ws, nombreParte);
-                getline(archivo, linea);
+                getline(ss >> ws, nombreParte);
+                string descripcion;
+                getline(archivo, descripcion);
                 string tipo = obtenerTipoDesdeNombre(nombreParte);
-                habitaciones[id] = new Habitacion(id, nombreParte, linea, tipo);
+                habitaciones[id] = new Habitacion(id, nombreParte, descripcion, tipo);
             }
         } else if (linea == "ARCOS") {
             int cantidad;
