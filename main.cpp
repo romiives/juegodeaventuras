@@ -43,6 +43,34 @@ public:
 
 //Struct y uso de data.map
 
+struct NodoEnemigo{
+    Enemigo enemigo;
+    NodoEnemigo* sig;
+};
+
+struct ColaEnemigos{
+    NodoEnemigo* frente = nullptr;
+    NodoEnemigo* final = nullptr;
+    void encolar(Enemigo e){
+        NodoEnemigo* nuevo = new NodoEnemigo{e, nullptr};
+        if (!frente) frente = final = nuevo;
+        else{
+            final->sig = nuevo;
+            final = nuevo;
+        }
+    }
+    void desencolar(){
+        if (frente){
+            NodoEnemigo* temp = frente;
+            frente = frente->sig;
+            delete temp;
+        }
+    }
+    bool estaVacia(){
+        return frente == nullptr;
+    }
+};
+
 struct Habitacion {
     int id;
     string nombre;
@@ -60,6 +88,33 @@ struct Habitacion {
         hijo1 = hijo2 = hijo3 = NULL;
     }
 };
+
+struct Evento{
+    string nombre;
+    string descripcion;
+    string opcionaA;
+    string efectoA;
+    string opcionB;
+    string efectoB;
+};
+const int MAX_EVENTOS = 10;
+Evento eventos[MAX_EVENTOS];
+int totalEventos = 0;
+
+struct Enemigo{
+    string nombre;
+    int vida;
+    int ataque;
+    float precision;
+    float probabilidad;
+};
+const int MAX_ENEMIGOS = 10;
+Enemigo enemigos[MAX_ENEMIGOS];
+int totalEnemigos = 0;
+
+const int MAX_MEJORAS = 10;
+string mejorasCombate[MAX_MEJORAS];
+int totalMejoras = 0;
 
 const int MAX_HABITACIONES = 100;
 Habitacion* habitaciones[MAX_HABITACIONES];
@@ -112,7 +167,46 @@ bool cargarArchivo(const string& nombreArchivo) {
                     contadorHijos[desde]++;
                 }
             }
+        } else if (linea=="EVENTOS"){
+            archivo>>totalEventos;
+            archivo.ignore();
+            for (int i=0; i<totalEventos; i++){
+                getline(archivo, linea);
+                getline(archivo, eventos[i].nombre);
+                getline(archivo, linea);
+                eventos[i].probabilidad = stof(linea.substr(linea.find(" ")+1));
+                getline(archivo, eventos[i].descripcion);
+                getline(archivo, linea);
+                eventos[i].opcionA = linea.substr(3);
+                getline(archivo, eventos[i].efectoA);
+                getline(archivo, linea);
+                eventos[i].opcionB = linea.substr(3);
+                getline(archivo, eventos[i].efectoB);
+            }
+        } else if (linea == "ENEMIGOS") {
+            archivo>>totalEnemigos;
+            archivo.ignore();
+            for (int i = 0; i < totalEnemigos; i++) {
+                getline(archivo, linea);
+                stringstream ss(linea);
+                string nombre, temp;
+                int vida, ataque;
+                float precision, probabilidad;
+                getline(ss, nombre, '|');
+                ss>>temp>>vida>>temp>>ataque>>temp>>precision>>temp>>probabilidad;
+                nombre.erase(0, nombre.find_first_not_of(" "));
+                nombre.erase(nombre.find_last_not_of(" ") + 1);
+                enemigos[i]={nombre, vida, ataque, precision, probabilidad};
+            }
+        } else if (linea == "MEJORAS DE COMBATE"){
+            while (getline(archivo, linea)) {
+                if (linea == "FIN DE ARCHIVO") break;
+                if (linea.empty()) continue;
+                mejorasCombate[totalMejoras++]=linea;
+            }
         }
+
+
     }
     archivo.close();
 
@@ -128,6 +222,72 @@ bool cargarArchivo(const string& nombreArchivo) {
 
     return true;
 }
+
+ColaEnemigos generarColaDeEnemigos(){
+    ColaEnemigos cola;
+    for (int i = 0; i < totalEnemigos; i++){
+        float r = static_cast<float>(rand()) / RAND_MAX;
+        if (r <= enemigos[i].probabilidad) {
+            cola.encolar(enemigos[i]);
+        }
+    }
+    if (cola.estaVacia()){
+        cola.encolar(enemigos[0]);
+    }
+    return cola;
+}
+
+bool combatir(Jugador& jugador){
+    ColaEnemigos enemigosCola = generarColaDeEnemigos();
+    cout << "\n=== COMBATE INICIADO ===" <<endl;
+    while (!enemigosCola.estaVacia() && jugador.estaVivo()){
+        Enemigo& enemigo = enemigosCola.frente->enemigo;
+        float r = static_cast<float>(rand()) / RAND_MAX;
+        if (r <= jugador.getPrecision()){
+            cout<<"Atacas a "<<enemigo.nombre<<" y le haces "<<jugador.getAtaque()<<" de daño."<<endl;
+            enemigo.vida -= jugador.getAtaque();
+        } else {
+            cout<<"Fallaste el ataque a "<<enemigo.nombre<<"!"<<endl;
+        }
+        if (enemigo.vida <= 0){
+            cout<<enemigo.nombre<<" ha sido derrotado!"<<endl;
+            enemigosCola.desencolar();
+            continue;
+        }
+        r = static_cast<float>(rand()) / RAND_MAX;
+        if (r <= enemigo.precision){
+            cout<< enemigo.nombre<< " te ataca y te hace "<< enemigo.ataque<< " de daño."<<endl;
+            jugador.modificarVida(-enemigo.ataque);
+        } else {
+            cout<< enemigo.nombre<< " falló su ataque."<<endl;
+        }
+        jugador.mostrarEstado();
+    }
+    if (jugador.estaVivo()){
+        cout<< "\n¡Ganaste el combate!"<<endl;
+        return true;
+    } else {
+        cout<< "\nHas sido derrotado..."<<endl;
+        return false;
+    }
+}
+
+void aplicarMejora(Jugador& jugador, const string& mejora){
+    if (mejora.find("Vida") != string::npos){
+        int cantidad=stoi(mejora);
+        jugador.modificarVida(cantidad);
+    } else if (mejora.find("Precision") != string::npos){
+        float cantidad=stof(mejora);
+        jugador.mejorarPrecision(cantidad);
+    } else if (mejora.find("Ataque") != string::npos){
+        int cantidad=stoi(mejora);
+        jugador.mejorarAtaque(cantidad);
+    } else if (mejora.find("Recuperacion") != string::npos){
+        int cantidad=stoi(mejora);
+        jugador.mejorarRecuperacion(cantidad);
+    }
+}
+
 //cambiar nombre de habitación
 void jugar(Habitacion* actual, Jugador& jugador) {
     while (actual != NULL && jugador.estaVivo()) {
@@ -149,12 +309,75 @@ void jugar(Habitacion* actual, Jugador& jugador) {
         if (actual->hijo3) cout << "3. " << actual->hijo3->nombre << endl;
 
         int opcion;
-        cin >> opcion;
+        cin>>opcion;
 
         if (opcion == 1 && actual->hijo1) actual = actual->hijo1;
         else if (opcion == 2 && actual->hijo2) actual = actual->hijo2;
         else if (opcion == 3 && actual->hijo3) actual = actual->hijo3;
-        else cout << "Opcion invalida, intenta de nuevo." << endl;
+        else cout<<"Opcion invalida, intenta de nuevo."<<endl;
+
+        if (actual->tipo == "EVENTO") {
+            float r = static_cast<float>(rand()) / RAND_MAX;
+            float acumulado = 0;
+            Evento elegido;
+            for (int i = 0; i < totalEventos; i++) {
+                acumulado += eventos[i].probabilidad;
+                if (r <= acumulado) {
+                    elegido = eventos[i];
+                    break;
+                }
+            }
+            cout<<"\n=== EVENTO: "<<elegido.nombre<<" ==="<<endl;
+            cout<<elegido.descripcion<<endl;
+            cout<<"A: "<<elegido.opcionA<<"\nB: "<<elegido.opcionB<<endl;
+            char eleccion;
+            cout<<"Elige A o B: ";
+            cin>>eleccion;
+            if (eleccion == 'A' || eleccion == 'a') {
+                aplicarEfecto(jugador, elegido.efectoA);
+            } else if (eleccion == 'B' || eleccion == 'b') {
+                aplicarEfecto(jugador, elegido.efectoB);
+            } else {
+                cout<<"Opción inválida. No se aplicará ningún efecto."<<endl;
+            }
+        }
+
+        if (actual->tipo == "COMBATE"){
+            bool gano = combatir(jugador);
+            if (!gano) break;
+            cout<< "\n--- Elige una mejora de combate ---"<<endl;
+            for (int i = 0; i < totalMejoras; i++){
+                cout<< i + 1<< ". "<< mejorasCombate[i]<<endl;
+            }
+            int opcion = 0;
+            while (opcion < 1 || opcion >totalMejoras){
+                cout<< "Opción (1-" << totalMejoras<< "): ";
+                cin>>opcion;
+            }
+            aplicarMejora(jugador, mejorasCombate[opcion - 1]);
+        }
+    }
+}
+
+void aplicarEfecto(Jugador& jugador, const string& efecto){
+    stringstream ss(efecto);
+    string parte;
+    while (getline(ss, parte, ',')){
+        parte.erase(0, parte.find_first_not_of(" "));
+        parte.erase(parte.find_last_not_of(" ") + 1);
+        if (parte.find("Vida") != string::npos){
+            int cantidad=stoi(parte);
+            jugador.modificarVida(cantidad);
+        } else if (parte.find("Precision") != string::npos){
+            float cantidad=stof(parte);
+            jugador.mejorarPrecision(cantidad);
+        } else if (parte.find("Ataque") != string::npos){
+            int cantidad=stoi(parte);
+            jugador.mejorarAtaque(cantidad);
+        } else if (parte.find("Recuperacion") != string::npos){
+            int cantidad=stoi(parte);
+            jugador.mejorarRecuperacion(cantidad);
+        }
     }
 }
 
@@ -190,5 +413,17 @@ int main() {
     jugar(inicio, jugador);
 
     cout << "\nGracias por jugar. Hasta la próxima!" << endl;
+
+    liberarMemoria();
     return 0;
+}
+
+//liberar memoria
+void liberarMemoria() {
+    for (int i = 0;i<MAX_HABITACIONES;i++){
+        if (habitaciones[i] != nullptr){
+            delete habitaciones[i];
+            habitaciones[i] = nullptr;
+        }
+    }
 }
