@@ -152,16 +152,14 @@ bool cargarArchivo(const string& nombreArchivo) {
                 stringstream ss(linea);
                 ss >> id;
                 string nombreParte;
-                getline(ss, nombreParte);
-                cout << "[DEBUG ID] id = " << id << endl;
-                cout << "[DEBUG nombre] '" << nombreParte << "'" << endl;
+                getline(ss >> ws, nombreParte);
                 nombreParte.erase(0, nombreParte.find_first_not_of(" \t\r\n"));
                 nombreParte.erase(nombreParte.find_last_not_of(" \t\r\n")+1);
+                cout << "[DEBUG] ID: " << id << " | Nombre: '" << nombreParte << "' | Tipo: " << obtenerTipoDesdeNombre(nombreParte) << endl;
                 string descripcion;
                 getline(archivo, descripcion);
                 string tipo = obtenerTipoDesdeNombre(nombreParte);
                 habitaciones[id] = new Habitacion(id, nombreParte, descripcion, tipo);
-                cout << "[DEBUG almacenado] habitaciones[" << id << "] -> " << habitaciones[id]->nombre << endl;
             }
         } else if (linea == "ARCOS") {
             int cantidad;
