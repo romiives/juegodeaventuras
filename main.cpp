@@ -214,7 +214,7 @@ bool cargarArchivo(const string& nombreArchivo) {
     archivo.close();
 
     for (int i = 0; i < MAX_HABITACIONES; i++) {
-        if (habitaciones[i] != NULL) {
+        if (habitaciones[i] != nullptr) {
             for (int j = 0; j < contadorHijos[i]; j++) {
                 if (j == 0) habitaciones[i]->hijo1 = habitaciones[hijos[i][j]];
                 if (j == 1) habitaciones[i]->hijo2 = habitaciones[hijos[i][j]];
