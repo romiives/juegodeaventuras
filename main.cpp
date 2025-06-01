@@ -387,7 +387,7 @@ void jugar(Habitacion* actual, Jugador& jugador) {
             cout << "\n¿A dónde quieres ir?" << endl;
             if (actual->hijo1) cout << "1. " << actual->hijo1->nombre << endl;
             if (actual->hijo2) cout << "2. " << actual->hijo2->nombre << endl;
-            if (actual->hijo3) cout << "3. " << actual->hijo3->nombre << endl
+            if (actual->hijo3) cout << "3. " << actual->hijo3->nombre << endl;
 
             int opcion = 0;
             bool valido = false;
