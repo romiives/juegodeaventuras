@@ -434,7 +434,6 @@ int main() {
     jugador.mostrarEstado();
 
     Habitacion* inicio = NULL;
-    cout << "[DEBUG almacenado] habitaciones[" << id << "] -> " << habitaciones[id]->nombre << endl;
     for (int i = 0; i < MAX_HABITACIONES; i++) {
         if (habitaciones[i] != NULL && habitaciones[i]->tipo == "INICIO") {
             inicio = habitaciones[i];
