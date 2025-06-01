@@ -128,7 +128,8 @@ string obtenerTipoDesdeNombre(const string& nombre) {
     if (nombre.find("(INICIO)") != string::npos) return "INICIO";
     if (nombre.find("(COMBATE)") != string::npos) return "COMBATE";
     if (nombre.find("(EVENTO)") != string::npos) return "EVENTO";
-    return "FIN";
+    if (nombre.find("(FIN)") != string::npos) return "FIN";
+    return "DESCONOCIDO";
 }
 
 bool cargarArchivo(const string& nombreArchivo) {
@@ -148,13 +149,17 @@ bool cargarArchivo(const string& nombreArchivo) {
                 getline(archivo, linea);
                 stringstream ss(linea);
                 int id;
-                string nombreParte;
                 ss >> id;
-                getline(ss >> ws, nombreParte);
+                string nombreParte;
+                getline(ss >> nombreParte);
+                nombreParte.erase(0, nombreParte.find_first_not_of(" \t\r\n"));
+                nombreParte.erase(nombreParte.find_last_not_of(" \t\r\n")+1);
                 string descripcion;
                 getline(archivo, descripcion);
                 string tipo = obtenerTipoDesdeNombre(nombreParte);
                 habitaciones[id] = new Habitacion(id, nombreParte, descripcion, tipo);
+
+                cout <<"[DEBUG] ID: " << id << ", Nombre: " << nombreParte << ", Tipo detectado:" << tipo << endl;
             }
         } else if (linea == "ARCOS") {
             int cantidad;
@@ -419,6 +424,11 @@ int main() {
 
     if (inicio == NULL) {
         cout << "No se encontró una habitación." << endl;
+        for (int i=0; i < MAX_HABITACIONES; i++){
+            if (habitaciones[i]) {
+                cout << "  - ID: " << i << ": tipo = " << habitaciones[i]->tipo << endl;
+            }
+        }
         return 1;
     }
 
