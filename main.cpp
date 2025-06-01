@@ -141,26 +141,27 @@ bool cargarArchivo(const string& nombreArchivo) {
 
     string linea;
     while (getline(archivo, linea)) {
-        cout << "[DEBUG] Línea leída: " << linea << endl;
+        //cout << "[DEBUG] Línea leída: " << linea << endl;
         if (linea == "HABITACIONES") {
             int cantidad;
             archivo >> cantidad;
             archivo.ignore();
             for (int i = 0; i < cantidad; i++) {
                 getline(archivo, linea);
-                stringstream ss(linea);
                 int id;
+                stringstream ss(linea);
                 ss >> id;
                 string nombreParte;
                 getline(ss, nombreParte);
+                cout << "[DEBUG ID] id = " << id << endl;
+                cout << "[DEBUG nombre] '" << nombreParte << "'" << endl;
                 nombreParte.erase(0, nombreParte.find_first_not_of(" \t\r\n"));
                 nombreParte.erase(nombreParte.find_last_not_of(" \t\r\n")+1);
                 string descripcion;
                 getline(archivo, descripcion);
                 string tipo = obtenerTipoDesdeNombre(nombreParte);
                 habitaciones[id] = new Habitacion(id, nombreParte, descripcion, tipo);
-
-                cout <<"[DEBUG] ID: " << id << ", Nombre: " << nombreParte << ", Tipo detectado:" << tipo << endl;
+                cout << "[DEBUG almacenado] habitaciones[" << id << "] -> " << habitaciones[id]->nombre << endl;
             }
         } else if (linea == "ARCOS") {
             int cantidad;
@@ -433,6 +434,7 @@ int main() {
     jugador.mostrarEstado();
 
     Habitacion* inicio = NULL;
+    cout << "[DEBUG almacenado] habitaciones[" << id << "] -> " << habitaciones[id]->nombre << endl;
     for (int i = 0; i < MAX_HABITACIONES; i++) {
         if (habitaciones[i] != NULL && habitaciones[i]->tipo == "INICIO") {
             inicio = habitaciones[i];
