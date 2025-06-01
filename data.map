@@ -48,7 +48,7 @@ ENEMIGOS
 4
 Pantera | Vida 12 | Ataque 5 | Precision 0.8 | Probabilidad 0.4
 Tribu Hostil | Vida 15 | Ataque 4 | Precision 0.6 | Probabilidad 0.3
-Serpiente Gigante | Vida 8 | Ataque 7 | Precision 0.5| Probabilidad 0.2
+Serpiente Gigante | Vida 8 | Ataque 7 | Precision 0.5 | Probabilidad 0.2
 Bestia de la Cueva | Vida 20 | Ataque 10 | Precision 0.3 | Probabilidad 0.1
 EVENTOS
 3
@@ -71,7 +71,7 @@ Solo era un nido de loros, te sientes aliviado
 +10 Vida
 B: Corres lo más lejos posible
 Caes en el lodo y te esguinzas el tobillo
--0,1 de precision, 2 de vida
+-0.1 de precision, 2 de vida
 &
 Observado
 Probabilidad 0.3
