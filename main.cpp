@@ -141,6 +141,7 @@ bool cargarArchivo(const string& nombreArchivo) {
 
     string linea;
     while (getline(archivo, linea)) {
+        cout << "[DEBUG] Línea leída: " << linea << endl;
         if (linea == "HABITACIONES") {
             int cantidad;
             archivo >> cantidad;
@@ -231,9 +232,9 @@ bool cargarArchivo(const string& nombreArchivo) {
                 if (j == 2) habitaciones[i]->hijo3 = habitaciones[hijos[i][j]];
             }
             cout << "[DEBUG] Habitacion ID " << i << " tiene hijos: ";
-            if (habitaciones[i]->hijo1) cout << habitaciones[i]->hijo1->id << " ";
-            if (habitaciones[i]->hijo2) cout << habitaciones[i]->hijo2->id << " ";
-            if (habitaciones[i]->hijo3) cout << habitaciones[i]->hijo3->id << " ";
+            if (habitaciones[i]->hijo1) cout << habitaciones[i]->hijo1->nombre << " ";
+            if (habitaciones[i]->hijo2) cout << habitaciones[i]->hijo2->nombre << " ";
+            if (habitaciones[i]->hijo3) cout << habitaciones[i]->hijo3->nombre << " ";
             cout << endl;
         }
     }
