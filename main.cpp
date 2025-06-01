@@ -151,7 +151,7 @@ bool cargarArchivo(const string& nombreArchivo) {
                 int id;
                 ss >> id;
                 string nombreParte;
-                getline(ss >> nombreParte);
+                getline(ss, nombreParte);
                 nombreParte.erase(0, nombreParte.find_first_not_of(" \t\r\n"));
                 nombreParte.erase(nombreParte.find_last_not_of(" \t\r\n")+1);
                 string descripcion;
