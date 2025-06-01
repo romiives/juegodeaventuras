@@ -141,7 +141,7 @@ bool cargarArchivo(const string& nombreArchivo) {
 
     string linea;
     while (getline(archivo, linea)) {
-        cout << "[DEBUG] Línea leída: " << linea << endl;
+        //cout << "[DEBUG] Línea leída: " << linea << endl;
         if (linea == "HABITACIONES") {
             int cantidad;
             archivo >> cantidad;
@@ -179,7 +179,7 @@ bool cargarArchivo(const string& nombreArchivo) {
                 }
             
             }
-        } else if (linea=="EVENTOS"){
+        } else if (linea == "EVENTOS"){
             archivo>>totalEventos;
             archivo.ignore();
             for (int i=0; i<totalEventos; i++){
@@ -432,7 +432,7 @@ int main() {
 
     Habitacion* inicio = NULL;
     for (int i = 0; i < MAX_HABITACIONES; i++) {
-        if (habitaciones[i] != NULL && habitaciones[i]->tipo == "INICIO") {
+        if (habitaciones[i] != NULL && habitaciones[i]->tipo == "(INICIO)") {
             inicio = habitaciones[i];
             break;
         }
