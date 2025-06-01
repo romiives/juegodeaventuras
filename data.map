@@ -31,19 +31,19 @@ te sumergiste demasiado en la laguna de la cascada, por lo que mueres al no lleg
 al entrar a la cueva, hiciste mucho ruido, el cual despierta a la bestia, te atacó y fuiste comido por la bestia, estas muerto
 ARCOS
 13
-0 -> 1
-0 -> 6
-0 -> 10
-1 -> 2
-1 -> 13
-2 -> 3
-2 -> 12
-3 -> 4
-3 -> 9
-4 -> 5
-4 -> 7
-5 -> 11
-5 -> 8
+0->1
+0->6
+0->10
+1->2
+1->13
+2->3
+2->12
+3->4
+3->9
+4->5
+4->7
+5->11
+5->8
 ENEMIGOS 
 4
 Pantera | Vida 12 | Ataque 5 | Precision 0.8 | Probabilidad 0.4

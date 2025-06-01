@@ -168,12 +168,17 @@ bool cargarArchivo(const string& nombreArchivo) {
             for (int i = 0; i < MAX_HABITACIONES; i++) contadorHijos[i] = 0;
             for (int i = 0; i < cantidad; i++) {
                 getline(archivo, linea);
-                int desde, hacia;
-                sscanf(linea.c_str(), "%d -> %d", &desde, &hacia);
-                if (contadorHijos[desde] < 3) {
-                    hijos[desde][contadorHijos[desde]] = hacia;
-                    contadorHijos[desde]++;
+                //int desde, hacia;
+                size_t arrowPos = linea.find("->");
+                if (arrowPos != string::npos){
+                    int desde = stoi(linea.substr(0, arrowPos));
+                    int hacia = stoi(linea.substr(arrowPos + 2));
+                    if (contadorHijos[desde] < 3) {
+                        hijos[desde][contadorHijos[desde]] = hacia;
+                        contadorHijos[desde]++;
+                    }
                 }
+            
             }
         } else if (linea=="EVENTOS"){
             archivo>>totalEventos;
@@ -225,6 +230,11 @@ bool cargarArchivo(const string& nombreArchivo) {
                 if (j == 1) habitaciones[i]->hijo2 = habitaciones[hijos[i][j]];
                 if (j == 2) habitaciones[i]->hijo3 = habitaciones[hijos[i][j]];
             }
+            cout << "[DEBUG] Habitacion ID " << i << " tiene hijos: ";
+            if (habitaciones[i]->hijo1) cout << habitaciones[i]->hijo1->id << " ";
+            if (habitaciones[i]->hijo2) cout << habitaciones[i]->hijo2->id << " ";
+            if (habitaciones[i]->hijo3) cout << habitaciones[i]->hijo3->id << " ";
+            cout << endl;
         }
     }
 
@@ -339,7 +349,7 @@ void jugar(Habitacion* actual, Jugador& jugador) {
         if (actual->hijo3) cout << "3. " << actual->hijo3->nombre << endl;
 
         int opcion;
-        cin>>opcion;
+        cin >> opcion;
 
         if (opcion == 1 && actual->hijo1) actual = actual->hijo1;
         else if (opcion == 2 && actual->hijo2) actual = actual->hijo2;
