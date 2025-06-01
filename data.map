@@ -2,33 +2,33 @@ INICIO DE ARCHIVO
 HABITACIONES
 14
 0 Selva (INICIO)
-Te adentras en una selva y a tu alrededor observas mucha vegetación pero a la vez sospechas que algo anda mal
+Te adentras en una selva y a tu alrededor observas mucha vegetación pero a la vez sospechas que algo anda mal.
 1 Cueva (EVENTO)
-Observas una pared inusual, cubierta de un manto de hojas y caes en la cuenta de que es una cueva, en donde te esperara una situacion inesperada 
+Observas una pared inusual, cubierta de un manto de hojas y caes en la cuenta de que es una cueva, en donde te esperara una situacion inesperada. 
 2 Camino (COMBATE)
-Caminas por un camino lodoso y peligroso, en donde serás atacado por una pantera
+Caminas por un camino lodoso y peligroso, en donde serás atacado por una pantera.
 3 Cascada (EVENTO)
-Llegas a una cascada y decides sumergirte por el calor, es ahi donde encuntras un tesoro
+Llegas a una cascada y decides sumergirte por el calor, es ahi donde encuntras un tesoro.
 4 Llanura (COMBATE)
-Sales de la selva y te encuntras en una llanura, en donde te esperara una tribu hostil
+Sales de la selva y te encuntras en una llanura, en donde te esperara una tribu hostil.
 5 Sendero (EVENTO)
-Dejas atras a la tribu y caminas recto por un sendero, donde te das cuenta de que algo pasa
+Dejas atras a la tribu y caminas recto por un sendero, donde te das cuenta de que algo pasa.
 6 Meteoritos (FIN)
-Cae una rafaga de meteoritos mientras caminabas por el sendero y mueres 
+Cae una rafaga de meteoritos mientras caminabas por el sendero y mueres.
 7 Terremoto (FIN)
-Mientras caminabas por el sendero se abre la tierra producto de un terremoto, caes en una de las llanuras y mueres
+Mientras caminabas por el sendero se abre la tierra producto de un terremoto, caes en una de las llanuras y mueres.
 8 Cabaña (FIN)
-entras en una cabaña y en la mesa hay comida, en ese momento te suena el estomago y recuerdas que no haz comido en 2 dias, decides comer y despues de un rato te empiezas a sentir mal, mueres porque la comida estaba envenenada
+entras en una cabaña y en la mesa hay comida, en ese momento te suena el estomago y recuerdas que no haz comido en 2 dias, decides comer y despues de un rato te empiezas a sentir mal, mueres porque la comida estaba envenenada.
 9 Sueño (FIN)
 Entras a una cabaña, te sientas en un sillon y te quedas dormido, y despiertas ayer.
 10 Neblina (FIN)
-estas en la selva y te rodea un mando de neblina tan espesa que quedas sin oxigeno, por lo tanto mueres asfixiado
+estas en la selva y te rodea un mando de neblina tan espesa que quedas sin oxigeno, por lo tanto mueres asfixiado.
 11 Tesoro (FIN)
-Entregas el tesoro buscado por la tribu hace miles de años y deciden no matarte, ahora eres parte de la tribu, haz sobrevivido
+Entregas el tesoro buscado por la tribu hace miles de años y deciden no matarte, ahora eres parte de la tribu, haz sobrevivido.
 12 Ahogamineto (FIN)
-te sumergiste demasiado en la laguna de la cascada, por lo que mueres al no llegar a la superficie
+te sumergiste demasiado en la laguna de la cascada, por lo que mueres al no llegar a la superficie.
 13 Ruido (FIN)
-al entrar a la cueva, hiciste mucho ruido, el cual despierta a la bestia, te atacó y fuiste comido por la bestia, estas muerto
+al entrar a la cueva, hiciste mucho ruido, el cual despierta a la bestia, te atacó y fuiste comido por la bestia, estas muerto.
 ARCOS
 13
 0 -> 1
@@ -55,32 +55,32 @@ EVENTOS
 &
 Tesoro Hundido
 Probabilidad 0.3
-Al nadar en la laguna de la cascada encuentras un cofre hundido en el agua
-A: Intentas abrirlo bajo el agua 
-El esfuerzo agota fisica y mentalmente 
+Al nadar en la laguna de la cascada encuentras un cofre hundido en el agua.
+A: Intentas abrirlo bajo el agua.
+El esfuerzo agota fisica y mentalmente.
 -5 de vida 
-B: Ignorar el cofre hundido 
+B: Ignorar el cofre hundido.
 Sin riegos físicos, te salvaste apenitas!!
-Ninguna consecuencia
+Ninguna consecuencia.
 &
 Grito a lo lejos 
 Probabilidad 0.4
-Escuchas un grito a lo lejos en la selva, no sabes si es de un humano o de un animal 
-A: Corres hacia el sonido
-Solo era un nido de loros, te sientes aliviado
+Escuchas un grito a lo lejos en la selva, no sabes si es de un humano o de un animal.
+A: Corres hacia el sonido.
+Solo era un nido de loros, te sientes aliviado.
 +10 Vida
-B: Corres lo más lejos posible
-Caes en el lodo y te esguinzas el tobillo
+B: Corres lo más lejos posible.
+Caes en el lodo y te esguinzas el tobillo.
 -0.1 de precision, 2 de vida
 &
 Observado
 Probabilidad 0.3
-Te sientes observado, por lo que analizas alrededor de ti y observar que los arbustos se mueven
-A: Te acercas 
+Te sientes observado, por lo que analizas alrededor de ti y observar que los arbustos se mueven.
+A: Te acercas. 
 Haz sido atacado por un animal
 -2 de vida 
-B: Te escondes y esperas para ver que es
-el animal se aleja, valio la pena esperar 
+B: Te escondes y esperas para ver que es.
+el animal se aleja, valio la pena esperar.
 +1 de vida 
 MEJORAS DE COMBATE
 +3 Vida
