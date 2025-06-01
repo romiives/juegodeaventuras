@@ -124,7 +124,9 @@ bool conexiones[MAX_HABITACIONES][3];
 int hijos[MAX_HABITACIONES][3];
 int contadorHijos[MAX_HABITACIONES];
 
-string obtenerTipoDesdeNombre(const string& nombre) {
+string obtenerTipoDesdeNombre(const string& nombreOriginal) {
+    string nombre = nombreOriginal;
+    nombre.erase(remove_if(nombre.begin(), nombre.end(), ::isspace), nombre.end());
     if (nombre.find("(INICIO)") != string::npos) return "INICIO";
     if (nombre.find("(COMBATE)") != string::npos) return "COMBATE";
     if (nombre.find("(EVENTO)") != string::npos) return "EVENTO";
