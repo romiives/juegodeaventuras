@@ -341,60 +341,67 @@ void jugar(Habitacion* actual, Jugador& jugador) {
 
         jugador.mostrarEstado();
 
-        if (actual->hijo1 == NULL && actual->hijo2 == NULL && actual->hijo3 == NULL) break;
- 
-        cout << "\nA dónde quieres ir?" << endl;
-        if (actual->hijo1) cout << "1. " << actual->hijo1->nombre << endl;
-        if (actual->hijo2) cout << "2. " << actual->hijo2->nombre << endl;
-        if (actual->hijo3) cout << "3. " << actual->hijo3->nombre << endl;
-
-        int opcion;
-        cin >> opcion;
-
-        if (opcion == 1 && actual->hijo1) actual = actual->hijo1;
-        else if (opcion == 2 && actual->hijo2) actual = actual->hijo2;
-        else if (opcion == 3 && actual->hijo3) actual = actual->hijo3;
-        else cout<<"Opcion invalida, intenta de nuevo."<<endl;
-
-        if (actual->tipo == "EVENTO") {
+        if (actual->tipo == "EVENTO"){
             float r = static_cast<float>(rand()) / RAND_MAX;
             float acumulado = 0;
             Evento elegido;
-            for (int i = 0; i < totalEventos; i++) {
+            for (int i = 0; i < totalEventos; i++){
                 acumulado += eventos[i].probabilidad;
-                if (r <= acumulado) {
+                if (r <= acumulado){
                     elegido = eventos[i];
                     break;
                 }
             }
-            cout<<"\n=== EVENTO: "<<elegido.nombre<<" ==="<<endl;
-            cout<<elegido.descripcion<<endl;
-            cout<<"A: "<<elegido.opcionA<<"\nB: "<<elegido.opcionB<<endl;
+            cout << "\n=== EVENTO: " << elegido.nombre << " ===" << endl;
+            cout << elegido.descripcion << endl;
+            cout << "A: " << elegido.opcionA << "\nB: " << elegido.opcionB << endl;
             char eleccion;
-            cout<<"Elige A o B: ";
-            cin>>eleccion;
-            if (eleccion == 'A' || eleccion == 'a') {
-                aplicarEfecto(jugador, elegido.efectoA);
-            } else if (eleccion == 'B' || eleccion == 'b') {
-                aplicarEfecto(jugador, elegido.efectoB);
-            } else {
-                cout<<"Opción inválida. No se aplicará ningún efecto."<<endl;
-            }
+            cout << "Elige A o B: ";
+            cin >> eleccion;
+            if (eleccion == 'A' || eleccion == 'a') aplicarEfecto(jugador, elegido.efectoA);
+            else if (eleccion == 'B' || eleccion == 'b') aplicarEfecto(jugador, elegido.efectoB);
+            else cout << "Opcion invalida. No se aplica efecto." << endl;
+            
+            jugador.modificarVida(jugador.getRecuperacion());
+            cout << "Recuperas " << jugador.getRecuperacion() << " de vida tras el evento.\n";
         }
 
         if (actual->tipo == "COMBATE"){
             bool gano = combatir(jugador);
             if (!gano) break;
-            cout<< "\n--- Elige una mejora de combate ---"<<endl;
-            for (int i = 0; i < totalMejoras; i++){
-                cout<< i + 1<< ". "<< mejorasCombate[i]<<endl;
+            jugador.modificarVida(jugador.getRecuperacion());
+            cout << "Recuperas " << jugador.getRecuperacion() << " de vida tras el combate.\n";
+
+            cout << "\n--- Elige una mejora de combate ---" << endl;
+            for (int i=0; i < totalMejoras; i++){
+                cout << i+1<< ". " << mejorasCombate[i] << endl;
             }
             int opcion = 0;
-            while (opcion < 1 || opcion >totalMejoras){
-                cout<< "Opción (1-" << totalMejoras<< "): ";
-                cin>>opcion;
+            while (opcion < 1 || opcion > totalMejoras){
+                cout << "Opcion (1-" << totalMejoras << "): ";
+                cin >> opcion;
             }
-            aplicarMejora(jugador, mejorasCombate[opcion - 1]);
+            aplicarMejora(jugador, mejorasCombate[opcion -1]);
+        }
+        if (actual->hijo1 || actual->hijo2 || actual->hijo3){
+            cout << "\n¿A dónde quieres ir?" << endl;
+            if (actual->hijo1) cout << "1. " << actual->hijo1->nombre << endl;
+            if (actual->hijo2) cout << "2. " << actual->hijo2->nombre << endl;
+            if (actual->hijo3) cout << "3. " << actual->hijo3->nombre << endl;
+
+            int opcion = 0;
+            bool valido = false;
+            while (!valido){
+                cout << "Opcion: ";
+                cin >> opcion;
+                if (opcion == 1 && actual->hijo1) { actual = actual->hijo1; valido = true; }
+                else if (opcion == 2 && actual->hijo2) { actual = actual->hijo2; valido = true; }
+                else if (opcion == 3 && actual->hijo3) { actual = actual->hijo3; valido = true; }
+                else cout << "Opción inválida. Intenta de nuevo." << endl;
+            }
+        } else {
+            cout << "\nNo hay más caminos disponibles en esta habitación."<< endl;
+            break;
         }
     }
 }
