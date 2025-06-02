@@ -1,458 +1,247 @@
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <cstdlib>
-
+#include <ctime>
 using namespace std;
 
-//TDA Jugador 
-
 class Jugador {
-private:
+public:
     int vida;
     int ataque;
     float precision;
     int recuperacion;
 
-public:
-    Jugador(int v = 30, int a = 5, float p = 0.75f, int r = 3) {
-        vida = v;
-        ataque = a;
-        precision = p;
-        recuperacion = r;
+    Jugador() {
+        vida = 30;
+        ataque = 5;
+        precision = 0.6f;
+        recuperacion = 3;
     }
 
-    int getVida() const { return vida; }
-    int getAtaque() const { return ataque; }
-    float getPrecision() const { return precision; }
-    int getRecuperacion() const { return recuperacion; }
+    void mostrar() {
+        cout << "Vida: " << vida << " | Ataque: " << ataque << " | Precisión: " << precision << " | Recuperación: " << recuperacion << endl;
+    }
 
-    void modificarVida(int delta) { vida += delta; if (vida < 0) vida = 0; }
-    void mejorarAtaque(int delta = 1) { ataque += delta; }
-    void mejorarPrecision(float delta = 0.1f) { precision += delta; }
-    void mejorarRecuperacion(int delta = 1) { recuperacion += delta; }
+    void mejorar(int opcion) {
+        if (opcion == 1) vida += 3;
+        else if (opcion == 2) precision += 0.2f;
+        else if (opcion == 3) ataque += 5;
+        else if (opcion == 4) recuperacion += 4;
+    }
 
-    bool estaVivo() const { return vida > 0; }
-
-    void mostrarEstado() const {
-        cout << "Jugador ---> \nVida: " << vida << "\nAtaque: " << ataque
-             << "\nPrecisión: " << precision << "\nRecuperación: " << recuperacion << endl;
+    void curar() {
+        vida += recuperacion;
+        cout << "Recuperas " << recuperacion << " de vida. Vida actual: " << vida << endl;
     }
 };
 
-//Struct y uso de data.map
-
-struct Enemigo{
+struct NodoEnemigo {
     string nombre;
-    int vida;
-    int ataque;
+    int vida, ataque;
     float precision;
-    float probabilidad;
-};
-
-struct NodoEnemigo{
-    Enemigo enemigo;
     NodoEnemigo* sig;
 };
 
-struct ColaEnemigos{
-    NodoEnemigo* frente = nullptr;
-    NodoEnemigo* final = nullptr;
-    void encolar(Enemigo e){
-        NodoEnemigo* nuevo = new NodoEnemigo{e, nullptr};
-        if (!frente) frente = final = nuevo;
-        else{
-            final->sig = nuevo;
-            final = nuevo;
+class ColaEnemigos {
+public:
+    NodoEnemigo* frente;
+    NodoEnemigo* fin;
+
+    ColaEnemigos() {
+        frente = fin = NULL;
+    }
+
+    void encolar(string nombre, int vida, int ataque, float precision) {
+        NodoEnemigo* nuevo = new NodoEnemigo{nombre, vida, ataque, precision, NULL};
+        if (!frente) frente = fin = nuevo;
+        else {
+            fin->sig = nuevo;
+            fin = nuevo;
         }
     }
-    void desencolar(){
-        if (frente){
-            NodoEnemigo* temp = frente;
+
+    void desencolar() {
+        if (frente) {
+            NodoEnemigo* aux = frente;
             frente = frente->sig;
-            delete temp;
+            delete aux;
         }
     }
-    bool estaVacia(){
-        return frente == nullptr;
+
+    NodoEnemigo* primero() { return frente; }
+
+    bool vacia() { return frente == NULL; }
+
+    void liberar() {
+        while (!vacia()) desencolar();
     }
 };
+
+enum TipoHabitacion { INICIO, EVENTO, COMBATE, FIN };
 
 struct Habitacion {
     int id;
     string nombre;
     string descripcion;
-    string tipo;
-    Habitacion* hijo1;
-    Habitacion* hijo2;
-    Habitacion* hijo3;
+    TipoHabitacion tipo;
+    Habitacion* hijos[3];
 
-    Habitacion(int _id, string _nombre, string _descripcion, string _tipo) {
-        id = _id;
-        nombre = _nombre;
-        descripcion = _descripcion;
-        tipo = _tipo;
-        hijo1 = hijo2 = hijo3 = NULL;
+    Habitacion(int i, string n, string d, TipoHabitacion t) {
+        id = i;
+        nombre = n;
+        descripcion = d;
+        tipo = t;
+        for (int j = 0; j < 3; j++) hijos[j] = NULL;
     }
 };
 
-struct Evento{
-    string nombre;
-    float probabilidad;
-    string descripcion;
-    string opcionA;
-    string efectoA;
-    string opcionB;
-    string efectoB;
-};
-const int MAX_EVENTOS = 10;
-Evento eventos[MAX_EVENTOS];
-int totalEventos = 0;
-
-const int MAX_ENEMIGOS = 10;
-Enemigo enemigos[MAX_ENEMIGOS];
-int totalEnemigos = 0;
-
-const int MAX_MEJORAS = 10;
-string mejorasCombate[MAX_MEJORAS];
-int totalMejoras = 0;
-
-const int MAX_HABITACIONES = 100;
-Habitacion* habitaciones[MAX_HABITACIONES];
-bool conexiones[MAX_HABITACIONES][3];
-int hijos[MAX_HABITACIONES][3];
-int contadorHijos[MAX_HABITACIONES];
-
-string obtenerTipoDesdeNombre(const string& nombre) {
-    if (nombre.find("(INICIO)") != string::npos) return "INICIO";
-    if (nombre.find("(COMBATE)") != string::npos) return "COMBATE";
-    if (nombre.find("(EVENTO)") != string::npos) return "EVENTO";
-    if (nombre.find("(FIN)") != string::npos) return "FIN";
-    return "DESCONOCIDO";
+bool ataqueExitoso(float p) {
+    return (float(rand()) / RAND_MAX) < p;
 }
 
-bool cargarArchivo(const string& nombreArchivo) {
-    ifstream archivo(nombreArchivo.c_str());
-    if (!archivo.is_open()) {
-        cout << "Error: no se pudo abrir el archivo '" << nombreArchivo << "'." << endl;
-        return false;
+void enemigosPorID(int id, ColaEnemigos& cola) {
+    if (id == 2) {
+        cola.encolar("Pantera", 12, 5, 0.8f);
+    } else if (id == 4) {
+        cola.encolar("Tribu Hostil", 15, 4, 0.6f);
+        cola.encolar("Serpiente Gigante", 8, 7, 0.5f);
+    } else if (id == 9) {
+        cola.encolar("Bestia de la Cueva", 20, 10, 0.3f);
     }
-
-    string linea;
-    while (getline(archivo, linea)) {
-        //cout << "[DEBUG] Línea leída: " << linea << endl;
-        if (linea == "HABITACIONES") {
-            int cantidad;
-            archivo >> cantidad;
-            archivo.ignore();
-            for (int i = 0; i < cantidad; i++) {
-                getline(archivo, linea);
-                int id;
-                stringstream ss(linea);
-                ss >> id;
-                string nombreParte;
-                getline(ss >> ws, nombreParte);
-                nombreParte.erase(0, nombreParte.find_first_not_of(" \t\r\n"));
-                nombreParte.erase(nombreParte.find_last_not_of(" \t\r\n")+1);
-                string descripcion;
-                getline(archivo, descripcion);
-                string tipo = obtenerTipoDesdeNombre(nombreParte);
-                habitaciones[id] = new Habitacion(id, nombreParte, descripcion, tipo);
-            }
-        } else if (linea == "ARCOS") {
-            int cantidad;
-            archivo >> cantidad;
-            archivo.ignore();
-            for (int i = 0; i < MAX_HABITACIONES; i++) contadorHijos[i] = 0;
-            for (int i = 0; i < cantidad; i++) {
-                getline(archivo, linea);
-                //int desde, hacia;
-                size_t arrowPos = linea.find("->");
-                if (arrowPos != string::npos){
-                    int desde = stoi(linea.substr(0, arrowPos));
-                    int hacia = stoi(linea.substr(arrowPos + 2));
-                    if (contadorHijos[desde] < 3) {
-                        hijos[desde][contadorHijos[desde]] = hacia;
-                        contadorHijos[desde]++;
-                    }
-                }
-            
-            }
-        } else if (linea == "EVENTOS"){
-            archivo>>totalEventos;
-            archivo.ignore();
-            for (int i=0; i<totalEventos; i++){
-                getline(archivo, linea);
-                getline(archivo, eventos[i].nombre);
-                getline(archivo, linea);
-                eventos[i].probabilidad = stof(linea.substr(linea.find(" ")+1));
-                getline(archivo, eventos[i].descripcion);
-                getline(archivo, linea);
-                eventos[i].opcionA = linea.substr(3);
-                getline(archivo, eventos[i].efectoA);
-                getline(archivo, linea);
-                eventos[i].opcionB = linea.substr(3);
-                getline(archivo, eventos[i].efectoB);
-            }
-        } else if (linea == "ENEMIGOS") {
-            archivo>>totalEnemigos;
-            archivo.ignore();
-            for (int i = 0; i < totalEnemigos; i++) {
-                getline(archivo, linea);
-                stringstream ss(linea);
-                string nombre, temp;
-                int vida, ataque;
-                float precision, probabilidad;
-                getline(ss, nombre, '|');
-                ss>>temp>>vida>>temp>>ataque>>temp>>precision>>temp>>probabilidad;
-                nombre.erase(0, nombre.find_first_not_of(" "));
-                nombre.erase(nombre.find_last_not_of(" ") + 1);
-                enemigos[i]={nombre, vida, ataque, precision, probabilidad};
-            }
-        } else if (linea == "MEJORAS DE COMBATE"){
-            while (getline(archivo, linea)) {
-                if (linea == "FIN DE ARCHIVO") break;
-                if (linea.empty()) continue;
-                mejorasCombate[totalMejoras++]=linea;
-            }
-        }
-
-
-    }
-    archivo.close();
-
-    for (int i = 0; i < MAX_HABITACIONES; i++) {
-        if (habitaciones[i] != nullptr) {
-            for (int j = 0; j < contadorHijos[i]; j++) {
-                if (j == 0) habitaciones[i]->hijo1 = habitaciones[hijos[i][j]];
-                if (j == 1) habitaciones[i]->hijo2 = habitaciones[hijos[i][j]];
-                if (j == 2) habitaciones[i]->hijo3 = habitaciones[hijos[i][j]];
-            }
-            cout << "[DEBUG] Habitacion ID " << i << " tiene hijos: ";
-            if (habitaciones[i]->hijo1) cout << habitaciones[i]->hijo1->nombre << " ";
-            if (habitaciones[i]->hijo2) cout << habitaciones[i]->hijo2->nombre << " ";
-            if (habitaciones[i]->hijo3) cout << habitaciones[i]->hijo3->nombre << " ";
-            cout << endl;
-        }
-    }
-
-    return true;
 }
 
-ColaEnemigos generarColaDeEnemigos(){
-    ColaEnemigos cola;
-    for (int i = 0; i < totalEnemigos; i++){
-        float r = static_cast<float>(rand()) / RAND_MAX;
-        if (r <= enemigos[i].probabilidad) {
-            cola.encolar(enemigos[i]);
-        }
-    }
-    if (cola.estaVacia()){
-        cola.encolar(enemigos[0]);
-    }
-    return cola;
-}
+bool ejecutarCombate(Jugador &jugador, int habitacionId) {
+    ColaEnemigos enemigos;
+    enemigosPorID(habitacionId, enemigos);
+    cout << "\nComienza el combate." << endl;
+    while (jugador.vida > 0 && !enemigos.vacia()) {
+        NodoEnemigo* enemigo = enemigos.primero();
 
-bool combatir(Jugador& jugador){
-    ColaEnemigos enemigosCola = generarColaDeEnemigos();
-    cout << "\n=== COMBATE INICIADO ===" <<endl;
-    while (!enemigosCola.estaVacia() && jugador.estaVivo()){
-        Enemigo& enemigo = enemigosCola.frente->enemigo;
-        float r = static_cast<float>(rand()) / RAND_MAX;
-        if (r <= jugador.getPrecision()){
-            cout<<"Atacas a "<<enemigo.nombre<<" y le haces "<<jugador.getAtaque()<<" de daño."<<endl;
-            enemigo.vida -= jugador.getAtaque();
+        if (ataqueExitoso(jugador.precision)) {
+            enemigo->vida -= jugador.ataque;
+            cout << "Golpeas a " << enemigo->nombre << " por " << jugador.ataque << endl;
         } else {
-            cout<<"Fallaste el ataque a "<<enemigo.nombre<<"!"<<endl;
+            cout << "Fallas tu ataque." << endl;
         }
-        if (enemigo.vida <= 0){
-            cout<<enemigo.nombre<<" ha sido derrotado!"<<endl;
-            enemigosCola.desencolar();
+
+        if (enemigo->vida <= 0) {
+            cout << enemigo->nombre << " ha sido derrotado." << endl;
+            enemigos.desencolar();
             continue;
         }
-        r = static_cast<float>(rand()) / RAND_MAX;
-        if (r <= enemigo.precision){
-            cout<< enemigo.nombre<< " te ataca y te hace "<< enemigo.ataque<< " de daño."<<endl;
-            jugador.modificarVida(-enemigo.ataque);
+
+        if (ataqueExitoso(enemigo->precision)) {
+            jugador.vida -= enemigo->ataque;
+            cout << enemigo->nombre << " te golpea por " << enemigo->ataque << endl;
         } else {
-            cout<< enemigo.nombre<< " falló su ataque."<<endl;
+            cout << enemigo->nombre << " falla su ataque." << endl;
         }
-        jugador.mostrarEstado();
+
+        jugador.mostrar();
     }
-    if (jugador.estaVivo()){
-        cout<< "\n¡Ganaste el combate!"<<endl;
+
+    enemigos.liberar();
+
+    if (jugador.vida > 0) {
+        cout << "Has sobrevivido al combate." << endl;
+        jugador.curar();
+        cout << "Elige una mejora:\n1. +3 Vida\n2. +0.2 Precisión\n3. +5 Ataque\n4. +4 Recuperación\n> ";
+        int op;
+        cin >> op;
+        jugador.mejorar(op);
         return true;
     } else {
-        cout<< "\nHas sido derrotado..."<<endl;
+        cout << "Fuiste derrotado." << endl;
         return false;
     }
 }
 
-void aplicarMejora(Jugador& jugador, const string& mejora){
-    if (mejora.find("Vida") != string::npos){
-        int cantidad=stoi(mejora);
-        jugador.modificarVida(cantidad);
-    } else if (mejora.find("Precision") != string::npos){
-        float cantidad=stof(mejora);
-        jugador.mejorarPrecision(cantidad);
-    } else if (mejora.find("Ataque") != string::npos){
-        int cantidad=stoi(mejora);
-        jugador.mejorarAtaque(cantidad);
-    } else if (mejora.find("Recuperacion") != string::npos){
-        int cantidad=stoi(mejora);
-        jugador.mejorarRecuperacion(cantidad);
+void ejecutarEvento(Jugador &jugador) {
+    float r = (float(rand()) / RAND_MAX);
+    cout << "\nEncuentras un evento extraño.\n";
+
+    if (r < 0.33f) {
+        cout << "Ves un cofre. ¿Qué haces?\n1. Abrirlo\n2. Ignorarlo\n> ";
+        int op; cin >> op;
+        if (op == 1) jugador.vida -= 5;
+    } else if (r < 0.66f) {
+        cout << "Escuchas un grito. ¿Qué haces?\n1. Acercarte\n2. Alejarte\n> ";
+        int op; cin >> op;
+        if (op == 1) jugador.vida += 10;
+        else jugador.vida -= 2;
+    } else {
+        cout << "Sientes que te observan. ¿Qué haces?\n1. Acercarte\n2. Esconderte\n> ";
+        int op; cin >> op;
+        if (op == 1) jugador.vida -= 2;
+        else jugador.vida += 1;
     }
+
+    jugador.curar();
 }
 
-void aplicarEfecto(Jugador& jugador, const string& efecto){
-    stringstream ss(efecto);
-    string parte;
-    while (getline(ss, parte, ',')){
-        parte.erase(0, parte.find_first_not_of(" "));
-        parte.erase(parte.find_last_not_of(" ") + 1);
-        if (parte.find("Vida") != string::npos){
-            int cantidad=stoi(parte);
-            jugador.modificarVida(cantidad);
-        } else if (parte.find("Precision") != string::npos){
-            float cantidad=stof(parte);
-            jugador.mejorarPrecision(cantidad);
-        } else if (parte.find("Ataque") != string::npos){
-            int cantidad=stoi(parte);
-            jugador.mejorarAtaque(cantidad);
-        } else if (parte.find("Recuperacion") != string::npos){
-            int cantidad=stoi(parte);
-            jugador.mejorarRecuperacion(cantidad);
-        }
+void recorrer(Habitacion* actual, Jugador& jugador) {
+    if (!actual) return;
+
+    cout << "\n" << actual->nombre << "\n" << actual->descripcion << endl;
+    jugador.mostrar();
+
+    if (actual->tipo == COMBATE) {
+        if (!ejecutarCombate(jugador, actual->id)) return;
+    } else if (actual->tipo == EVENTO) {
+        ejecutarEvento(jugador);
+    } else if (actual->tipo == FIN) {
+        cout << "Fin del juego. " << actual->descripcion << endl;
+        return;
     }
+
+    int opciones = 0;
+    for (int i = 0; i < 3; i++)
+        if (actual->hijos[i]) opciones++;
+
+    if (opciones == 0) {
+        cout << "No hay más caminos. Fin del juego.\n";
+        return;
+    }
+
+    cout << "¿Dónde deseas ir?\n";
+    for (int i = 0; i < opciones; i++)
+        cout << i + 1 << ". " << actual->hijos[i]->nombre << endl;
+
+    int eleccion;
+    cout << "> ";
+    cin >> eleccion;
+
+    if (eleccion >= 1 && eleccion <= opciones)
+        recorrer(actual->hijos[eleccion - 1], jugador);
 }
 
-//cambiar nombre de habitación
-void jugar(Habitacion* actual, Jugador& jugador) {
-    while (actual != NULL && jugador.estaVivo()) {
-        cout << "\n " << actual->nombre << "" << endl;
-        cout << actual->descripcion << endl;
-
-        if (actual->tipo == "FIN") {
-            cout << "\n=== Has llegado a un final del juego. ===" << endl;
-            break;
-        }
-
-        jugador.mostrarEstado();
-
-        if (actual->tipo == "EVENTO"){
-            float r = static_cast<float>(rand()) / RAND_MAX;
-            float acumulado = 0;
-            Evento elegido;
-            for (int i = 0; i < totalEventos; i++){
-                acumulado += eventos[i].probabilidad;
-                if (r <= acumulado){
-                    elegido = eventos[i];
-                    break;
-                }
-            }
-            cout << "\n=== EVENTO: " << elegido.nombre << " ===" << endl;
-            cout << elegido.descripcion << endl;
-            cout << "A: " << elegido.opcionA << "\nB: " << elegido.opcionB << endl;
-            char eleccion;
-            cout << "Elige A o B: ";
-            cin >> eleccion;
-            if (eleccion == 'A' || eleccion == 'a') aplicarEfecto(jugador, elegido.efectoA);
-            else if (eleccion == 'B' || eleccion == 'b') aplicarEfecto(jugador, elegido.efectoB);
-            else cout << "Opcion invalida. No se aplica efecto." << endl;
-            
-            jugador.modificarVida(jugador.getRecuperacion());
-            cout << "Recuperas " << jugador.getRecuperacion() << " de vida tras el evento.\n";
-        }
-
-        if (actual->tipo == "COMBATE"){
-            bool gano = combatir(jugador);
-            if (!gano) break;
-            jugador.modificarVida(jugador.getRecuperacion());
-            cout << "Recuperas " << jugador.getRecuperacion() << " de vida tras el combate.\n";
-
-            cout << "\n--- Elige una mejora de combate ---" << endl;
-            for (int i=0; i < totalMejoras; i++){
-                cout << i+1<< ". " << mejorasCombate[i] << endl;
-            }
-            int opcion = 0;
-            while (opcion < 1 || opcion > totalMejoras){
-                cout << "Opcion (1-" << totalMejoras << "): ";
-                cin >> opcion;
-            }
-            aplicarMejora(jugador, mejorasCombate[opcion -1]);
-        }
-        if (actual->hijo1 || actual->hijo2 || actual->hijo3){
-            cout << "\n¿A dónde quieres ir?" << endl;
-            if (actual->hijo1) cout << "1. " << actual->hijo1->nombre << endl;
-            if (actual->hijo2) cout << "2. " << actual->hijo2->nombre << endl;
-            if (actual->hijo3) cout << "3. " << actual->hijo3->nombre << endl;
-
-            int opcion = 0;
-            bool valido = false;
-            while (!valido){
-                cout << "Opcion: ";
-                cin >> opcion;
-                if (opcion == 1 && actual->hijo1) { actual = actual->hijo1; valido = true; }
-                else if (opcion == 2 && actual->hijo2) { actual = actual->hijo2; valido = true; }
-                else if (opcion == 3 && actual->hijo3) { actual = actual->hijo3; valido = true; }
-                else cout << "Opción inválida. Intenta de nuevo." << endl;
-            }
-        } else {
-            cout << "\nNo hay más caminos disponibles en esta habitación."<< endl;
-            break;
-        }
-    }
+void liberarArbol(Habitacion* h) {
+    if (!h) return;
+    for (int i = 0; i < 3; i++) liberarArbol(h->hijos[i]);
+    delete h;
 }
 
-//liberar memoria
-void liberarMemoria() {
-    for (int i = 0;i<MAX_HABITACIONES;i++){
-        if (habitaciones[i] != nullptr){
-            delete habitaciones[i];
-            habitaciones[i] = nullptr;
-        }
-    }
-}
-
-//Main
 int main() {
-    cout << "¡Bienvenido al juego!" << endl;
-
-    string nombreArchivo = "data.map";
-    cout << "Cargando archivo '" << nombreArchivo << "'..." << endl;
-
-    if (!cargarArchivo(nombreArchivo)) {
-        cout << "No se pudo cargar el mapa. Cerrando juego." << endl;
-        return 1;
-    }
-
+    srand(time(0));
     Jugador jugador;
-    jugador.mostrarEstado();
 
-    Habitacion* inicio = NULL;
-    for (int i = 0; i < MAX_HABITACIONES; i++) {
-        if (habitaciones[i] != NULL && habitaciones[i]->tipo == "(INICIO)") {
-            inicio = habitaciones[i];
-            break;
-        }
-    }
+    Habitacion* h0 = new Habitacion(0, "Selva", "Te adentras en una selva densa", INICIO);
+    Habitacion* h1 = new Habitacion(1, "Cueva", "Una cueva oscura aparece", EVENTO);
+    Habitacion* h2 = new Habitacion(2, "Camino", "Caminas por un sendero peligroso", COMBATE);
+    Habitacion* h3 = new Habitacion(3, "Cascada", "Descansas en una cascada", EVENTO);
+    Habitacion* h4 = new Habitacion(4, "Llanura", "Una tribu hostil aparece", COMBATE);
+    Habitacion* h5 = new Habitacion(5, "Sendero", "El sendero es extraño", EVENTO);
+    Habitacion* h6 = new Habitacion(6, "Meteoritos", "Caen meteoritos y mueres", FIN);
 
-    if (inicio == NULL) {
-        cout << "No se encontró una habitación." << endl;
-        for (int i=0; i < MAX_HABITACIONES; i++){
-            if (habitaciones[i]) {
-                cout << "  - ID: " << i << ": tipo = " << habitaciones[i]->tipo << endl;
-            }
-        }
-        return 1;
-    }
+    h0->hijos[0] = h1;
+    h0->hijos[1] = h2;
+    h1->hijos[0] = h3;
+    h2->hijos[0] = h4;
+    h4->hijos[0] = h5;
+    h5->hijos[0] = h6;
 
-    jugar(inicio, jugador);
+    recorrer(h0, jugador);
+    liberarArbol(h0);
 
-    cout << "\nGracias por jugar. Hasta la próxima!" << endl;
-
-    liberarMemoria();
     return 0;
 }
-
