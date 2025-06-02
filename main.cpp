@@ -224,6 +224,9 @@ void liberarArbol(Habitacion* h) {
 int main() {
     srand(time(0));
     Jugador jugador;
+    Habitacion* raiz = cargarMapa("data.map");
+    recorrer(raiz, jugador);
+    liberarArbol(raiz);
 
     Habitacion* h0 = new Habitacion(0, "Selva", "Te adentras en una selva densa", INICIO);
     Habitacion* h1 = new Habitacion(1, "Cueva", "Una cueva oscura aparece", EVENTO);
