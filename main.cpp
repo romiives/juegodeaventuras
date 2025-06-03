@@ -228,23 +228,5 @@ int main() {
     recorrer(raiz, jugador);
     liberarArbol(raiz);
 
-    Habitacion* h0 = new Habitacion(0, "Selva", "Te adentras en una selva densa", INICIO);
-    Habitacion* h1 = new Habitacion(1, "Cueva", "Una cueva oscura aparece", EVENTO);
-    Habitacion* h2 = new Habitacion(2, "Camino", "Caminas por un sendero peligroso", COMBATE);
-    Habitacion* h3 = new Habitacion(3, "Cascada", "Descansas en una cascada", EVENTO);
-    Habitacion* h4 = new Habitacion(4, "Llanura", "Una tribu hostil aparece", COMBATE);
-    Habitacion* h5 = new Habitacion(5, "Sendero", "El sendero es extraño", EVENTO);
-    Habitacion* h6 = new Habitacion(6, "Meteoritos", "Caen meteoritos y mueres", FIN);
-
-    h0->hijos[0] = h1;
-    h0->hijos[1] = h2;
-    h1->hijos[0] = h3;
-    h2->hijos[0] = h4;
-    h4->hijos[0] = h5;
-    h5->hijos[0] = h6;
-
-    recorrer(h0, jugador);
-    liberarArbol(h0);
-
     return 0;
 }
