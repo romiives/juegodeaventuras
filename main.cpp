@@ -50,7 +50,7 @@ struct Evento {
 };
 
 Habitacion* habitaciones[100] = {nullptr};
-int conexiones[100][3] = {{0}};
+int conexiones[100][3];
 Evento eventos[10];
 int totalHabitaciones = 0;
 int totalEventos = 0;
@@ -210,6 +210,10 @@ void jugar(NodoHabitacion* actual, Jugador &jugador) {
 }
 
 int main() {
+    // Inicializar conexiones en -1 para evitar problemas con ID 0 válidos
+    for (int i = 0; i < 100; ++i)
+        for (int j = 0; j < 3; ++j)
+            conexiones[i][j] = -1;
     srand(time(0));
     ifstream archivo("data.map");
     if (!archivo.is_open()) {
@@ -244,7 +248,7 @@ int main() {
         int b = stoi(arco.substr(arco.find("->") + 3));
         if (a >= 0 && a < 100 && b >= 0 && b < 100) {
             for (int j = 0; j < 3; ++j) {
-                if (conexiones[a][j] == 0) {
+                if (conexiones[a][j] == -1) {
                     conexiones[a][j] = b;
                     break;
                 }
@@ -296,3 +300,4 @@ int main() {
     jugar(raiz, jugador);
     return 0;
 }
+
