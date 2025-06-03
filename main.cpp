@@ -1,9 +1,9 @@
-// tarea2.cpp — versión completa con elecciones, combate, eventos y mejoras
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <cstdlib>
 #include <ctime>
+#include <sstream>
 
 using namespace std;
 
@@ -11,6 +11,14 @@ struct Jugador {
     int vida = 30;
     int ataque = 5;
     float precision = 0.7;
+};
+
+struct Enemigo {
+    string nombre;
+    int vida;
+    int ataque;
+    float precision;
+    float probabilidad;
 };
 
 struct Habitacion {
@@ -29,6 +37,7 @@ struct NodoHabitacion {
 
 struct Evento {
     string nombre;
+    float probabilidad;
     string descripcion;
     string opcionA_texto;
     string opcionA_consecuencia;
@@ -40,11 +49,13 @@ struct Evento {
     float opcionB_precision = 0;
 };
 
-Habitacion* habitaciones[100];
-int conexiones[100][3];
+Habitacion* habitaciones[100] = {nullptr};
+int conexiones[100][3] = {{0}};
 Evento eventos[10];
 int totalHabitaciones = 0;
 int totalEventos = 0;
+Enemigo enemigos[10];
+int totalEnemigos = 0;
 
 float randomFloat() {
     return static_cast<float>(rand()) / RAND_MAX;
@@ -69,60 +80,101 @@ int leerEnteroSeguro(ifstream &archivo) {
     }
 }
 
+void parsearEfectos(string linea, int &vida, float &precision) {
+    vida = 0;
+    precision = 0;
+    istringstream ss(linea);
+    string palabra;
+    while (ss >> palabra) {
+        try {
+            float valor = stof(palabra);
+            string unidad;
+            ss >> unidad;
+            if (unidad.find("prec") != string::npos)
+                precision += valor;
+            else if (unidad.find("vid") != string::npos)
+                vida += static_cast<int>(valor);
+        } catch (...) {
+            continue;
+        }
+    }
+}
+
 NodoHabitacion* construirArbol(int id) {
-    if (habitaciones[id] == NULL) return NULL;
+    if (id < 0 || id >= 100 || habitaciones[id] == NULL) return NULL;
     NodoHabitacion* nodo = new NodoHabitacion{habitaciones[id], NULL, NULL, NULL};
     for (int i = 0; i < 3; ++i) {
-        if (conexiones[id][i] != 0 || (id == 0 && conexiones[id][i] != 0)) {
-            if (i == 0) nodo->hijo1 = construirArbol(conexiones[id][i]);
-            if (i == 1) nodo->hijo2 = construirArbol(conexiones[id][i]);
-            if (i == 2) nodo->hijo3 = construirArbol(conexiones[id][i]);
+        int destino = conexiones[id][i];
+        if (destino >= 0 && destino < 100 && habitaciones[destino] != NULL) {
+            if (i == 0) nodo->hijo1 = construirArbol(destino);
+            if (i == 1) nodo->hijo2 = construirArbol(destino);
+            if (i == 2) nodo->hijo3 = construirArbol(destino);
         }
     }
     return nodo;
 }
 
 void aplicarEvento(Jugador &jugador) {
-    int i = rand() % totalEventos;
-    Evento e = eventos[i];
-    cout << "\n[Evento: " << e.nombre << "]\n" << e.descripcion << endl;
-    cout << "A: " << e.opcionA_texto << endl;
-    cout << "B: " << e.opcionB_texto << endl;
-    char eleccion;
-    cin >> eleccion;
-    if (eleccion == 'A' || eleccion == 'a') {
-        cout << e.opcionA_consecuencia << endl;
-        jugador.vida += e.opcionA_vida;
-        jugador.precision += e.opcionA_precision;
-    } else {
-        cout << e.opcionB_consecuencia << endl;
-        jugador.vida += e.opcionB_vida;
-        jugador.precision += e.opcionB_precision;
+    for (int i = 0; i < totalEventos; ++i) {
+        if (randomFloat() < eventos[i].probabilidad) {
+            Evento &e = eventos[i];
+            cout << "\n[Evento: " << e.nombre << "]\n" << e.descripcion << endl;
+            cout << "A: " << e.opcionA_texto << endl;
+            cout << "B: " << e.opcionB_texto << endl;
+            char eleccion;
+            cin >> eleccion;
+            if (eleccion == 'A' || eleccion == 'a') {
+                cout << e.opcionA_consecuencia << endl;
+                jugador.vida += e.opcionA_vida;
+                jugador.precision += e.opcionA_precision;
+            } else {
+                cout << e.opcionB_consecuencia << endl;
+                jugador.vida += e.opcionB_vida;
+                jugador.precision += e.opcionB_precision;
+            }
+            cout << "Vida: " << jugador.vida << ", Precisión: " << jugador.precision << endl;
+            return;
+        }
     }
-    cout << "Vida actual: " << jugador.vida << ", Precisión: " << jugador.precision << endl;
+    cout << "No ocurrió ningún evento esta vez.\n";
 }
 
 void combate(Jugador &jugador) {
-    cout << "¡Enfrentas a un enemigo!\n";
-    if (randomFloat() < jugador.precision) {
-        cout << "¡Lo derrotaste antes de que atacara!\n";
+    bool huboCombate = false;
+    for (int i = 0; i < totalEnemigos; ++i) {
+        if (randomFloat() < enemigos[i].probabilidad) {
+            Enemigo e = enemigos[i];
+            cout << "\nCombate contra: " << e.nombre << endl;
+            while (e.vida > 0 && jugador.vida > 0) {
+                if (randomFloat() < jugador.precision) {
+                    e.vida -= jugador.ataque;
+                    cout << "Atacas e infliges " << jugador.ataque << ". Vida enemigo: " << e.vida << endl;
+                } else cout << "Fallaste el ataque.\n";
+                if (e.vida > 0 && randomFloat() < e.precision) {
+                    jugador.vida -= e.ataque;
+                    cout << e.nombre << " te golpea. Vida actual: " << jugador.vida << endl;
+                } else if (e.vida > 0) {
+                    cout << e.nombre << " falló el ataque.\n";
+                }
+            }
+            if (jugador.vida <= 0) {
+                cout << "Has muerto en combate...\n";
+                exit(0);
+            }
+            huboCombate = true;
+        }
+    }
+    if (!huboCombate) {
+        cout << "No apareció ningún enemigo.\n";
     } else {
-        jugador.vida -= 5;
-        cout << "El enemigo te golpea. Pierdes 5 de vida.\n";
+        cout << "\nElige una mejora:\n1. +3 Vida\n2. +0.2 Precisión\n3. +5 Ataque\n";
+        int op;
+        cin >> op;
+        if (op == 1) jugador.vida += 3;
+        else if (op == 2) jugador.precision += 0.2;
+        else if (op == 3) jugador.ataque += 5;
+        cout << "Mejoras aplicadas. Vida: " << jugador.vida << ", Precisión: " << jugador.precision << ", Ataque: " << jugador.ataque << endl;
     }
-    cout << "Vida restante: " << jugador.vida << "\n";
-    if (jugador.vida <= 0) {
-        cout << "Has muerto en combate...\n";
-        exit(0);
-    }
-
-    cout << "\nElige una mejora:\n1. +3 Vida\n2. +0.2 Precisión\n3. +5 Ataque\n";
-    int op;
-    cin >> op;
-    if (op == 1) jugador.vida += 3;
-    else if (op == 2) jugador.precision += 0.2;
-    else if (op == 3) jugador.ataque += 5;
-    cout << "\nEstadísticas tras mejora — Vida: " << jugador.vida << ", Precisión: " << jugador.precision << ", Ataque: " << jugador.ataque << endl;
 }
 
 void jugar(NodoHabitacion* actual, Jugador &jugador) {
@@ -134,6 +186,10 @@ void jugar(NodoHabitacion* actual, Jugador &jugador) {
     else if (actual->hab->tipo == "EVENTO") aplicarEvento(jugador);
     else if (actual->hab->tipo == "FIN") {
         cout << "\n==> FIN DEL JUEGO\n";
+        if (actual->hab->id == 11)
+            cout << "¡Has ganado el juego!\n";
+        else
+            cout << "Has llegado a un final alternativo.\n";
         return;
     }
 
@@ -148,7 +204,9 @@ void jugar(NodoHabitacion* actual, Jugador &jugador) {
     if (opcion == 1 && actual->hijo1) jugar(actual->hijo1, jugador);
     else if (opcion == 2 && actual->hijo2) jugar(actual->hijo2, jugador);
     else if (opcion == 3 && actual->hijo3) jugar(actual->hijo3, jugador);
-    else cout << "Opción inválida.\n";
+    else {
+        cout << "Opción inválida. Fin del juego.\n";
+    }
 }
 
 int main() {
@@ -164,58 +222,77 @@ int main() {
     int cantidadHabitaciones = leerEnteroSeguro(archivo);
 
     for (int i = 0; i < cantidadHabitaciones; ++i) {
-        string definicion = leerLineaSegura(archivo);
-        string descripcion = leerLineaSegura(archivo);
-        int pos1 = definicion.find(" ");
-        int pos2 = definicion.find("(");
-        int id = stoi(definicion.substr(0, pos1));
-        string nombre = definicion.substr(pos1 + 1, pos2 - pos1 - 2);
-        string tipo = definicion.substr(pos2 + 1);
+        string def = leerLineaSegura(archivo);
+        string desc = leerLineaSegura(archivo);
+        int id = stoi(def.substr(0, def.find(" ")));
+        int pos1 = def.find(" ");
+        int pos2 = def.find("(");
+        string nombre = def.substr(pos1 + 1, pos2 - pos1 - 2);
+        string tipo = def.substr(pos2 + 1);
         tipo.pop_back();
-        habitaciones[id] = new Habitacion{id, nombre, tipo, descripcion};
-        totalHabitaciones++;
+        if (id >= 0 && id < 100) {
+            habitaciones[id] = new Habitacion{id, nombre, tipo, desc};
+            totalHabitaciones++;
+        }
     }
 
     leerLineaSegura(archivo); // ARCOS
     int cantidadArcos = leerEnteroSeguro(archivo);
     for (int i = 0; i < cantidadArcos; ++i) {
         string arco = leerLineaSegura(archivo);
-        int flecha = arco.find("->");
-        int a = stoi(arco.substr(0, flecha - 1));
-        int b = stoi(arco.substr(flecha + 3));
-        for (int j = 0; j < 3; j++) {
-            if (conexiones[a][j] == 0) {
-                conexiones[a][j] = b;
-                break;
+        int a = stoi(arco.substr(0, arco.find("->") - 1));
+        int b = stoi(arco.substr(arco.find("->") + 3));
+        if (a >= 0 && a < 100 && b >= 0 && b < 100) {
+            for (int j = 0; j < 3; ++j) {
+                if (conexiones[a][j] == 0) {
+                    conexiones[a][j] = b;
+                    break;
+                }
             }
         }
     }
 
     leerLineaSegura(archivo); // ENEMIGOS
-    int enemigos = leerEnteroSeguro(archivo);
-    for (int i = 0; i < enemigos; ++i) leerLineaSegura(archivo); // ignorar enemigos
+    totalEnemigos = leerEnteroSeguro(archivo);
+    for (int i = 0; i < totalEnemigos; ++i) {
+        string linea = leerLineaSegura(archivo);
+        size_t p1 = linea.find("|");
+        size_t p2 = linea.find("|", p1 + 1);
+        size_t p3 = linea.find("|", p2 + 1);
+        size_t p4 = linea.find("|", p3 + 1);
+        enemigos[i].nombre = linea.substr(0, p1 - 1);
+        enemigos[i].vida = stoi(linea.substr(p1 + 6, p2 - p1 - 6));
+        enemigos[i].ataque = stoi(linea.substr(p2 + 9, p3 - p2 - 9));
+        enemigos[i].precision = stof(linea.substr(p3 + 11, p4 - p3 - 11));
+        enemigos[i].probabilidad = stof(linea.substr(p4 + 16));
+    }
 
     leerLineaSegura(archivo); // EVENTOS
     int ev = leerEnteroSeguro(archivo);
     for (int i = 0; i < ev; ++i) {
         leerLineaSegura(archivo); // &
         eventos[i].nombre = leerLineaSegura(archivo);
+        string prob = leerLineaSegura(archivo);
+        eventos[i].probabilidad = stof(prob.substr(prob.find(" ") + 1));
         eventos[i].descripcion = leerLineaSegura(archivo);
         eventos[i].opcionA_texto = leerLineaSegura(archivo);
         eventos[i].opcionA_consecuencia = leerLineaSegura(archivo);
         string efectoA = leerLineaSegura(archivo);
-        if (efectoA.find("Vida") != string::npos) eventos[i].opcionA_vida = stoi(efectoA);
-        if (efectoA.find("Precision") != string::npos) eventos[i].opcionA_precision = stof(efectoA);
+        parsearEfectos(efectoA, eventos[i].opcionA_vida, eventos[i].opcionA_precision);
         eventos[i].opcionB_texto = leerLineaSegura(archivo);
         eventos[i].opcionB_consecuencia = leerLineaSegura(archivo);
         string efectoB = leerLineaSegura(archivo);
-        if (efectoB.find("Vida") != string::npos) eventos[i].opcionB_vida = stoi(efectoB);
-        if (efectoB.find("Precision") != string::npos) eventos[i].opcionB_precision = stof(efectoB);
+        parsearEfectos(efectoB, eventos[i].opcionB_vida, eventos[i].opcionB_precision);
         totalEventos++;
     }
 
-    Jugador jugador;
+    if (!habitaciones[0]) {
+        cout << "Error: habitación inicial (ID 0) no existe.\n";
+        return 1;
+    }
+
     NodoHabitacion* raiz = construirArbol(0);
+    Jugador jugador;
     jugar(raiz, jugador);
     return 0;
 }
