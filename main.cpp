@@ -5,6 +5,13 @@
 #include <ctime>
 #include <sstream>
 
+char toLowerChar(char c) {
+    if (c >= 'A' && c <= 'Z') {
+        return c + ('a' - 'A');
+    }
+    return c;
+}
+
 using namespace std;
 
 struct Jugador {
@@ -29,7 +36,7 @@ struct Habitacion {
 };
 
 struct NodoHabitacion {
-    Habitacion* hab;
+    Habitacion* habitacion;
     NodoHabitacion* hijo1;
     NodoHabitacion* hijo2;
     NodoHabitacion* hijo3;
@@ -49,29 +56,37 @@ struct Evento {
     float opcionB_precision = 0;
 };
 
-// Arrays C-style globales
-Habitacion* habitaciones[100]; // Max 100 habitaciones
-int conexiones[100][3];        // Max 100 habitaciones, 3 conexiones por habitacion
-Evento eventos[10];             // Max 10 eventos
-Enemigo enemigos[10];           // Max 10 enemigos
+Habitacion* habitaciones[100];
+int conexiones[100][3];
+Evento eventos[10];
+Enemigo enemigos[10];
 
-// Contadores globales
 int totalHabitaciones = 0;
 int totalEventos = 0;
 int totalEnemigos = 0;
 
-float randomFloat() {
+float generarFloatAleatorio() {
     return static_cast<float>(rand()) / RAND_MAX;
+}
+
+string limpiarEspacios(const string& str) {
+    size_t primerNoEspacio = str.find_first_not_of(" \t\n\r");
+    if (string::npos == primerNoEspacio) {
+        return "";
+    }
+    size_t ultimoNoEspacio = str.find_last_not_of(" \t\n\r");
+    return str.substr(primerNoEspacio, (ultimoNoEspacio - primerNoEspacio + 1));
 }
 
 string leerLineaSegura(ifstream &archivo) {
     string linea;
     while (getline(archivo, linea)) {
-        if (!linea.empty() && linea.find_first_not_of(" \t\n\r") != string::npos) {
+        linea = limpiarEspacios(linea);
+        if (!linea.empty()) {
             return linea;
         }
     }
-    return ""; // Devolver cadena vacía para indicar fin o error específico
+    return "";
 }
 
 int leerEnteroSeguro(ifstream &archivo) {
@@ -94,45 +109,55 @@ int leerEnteroSeguro(ifstream &archivo) {
 void parsearEfectos(string linea, int &vida, float &precision) {
     vida = 0;
     precision = 0.0f;
-    istringstream ss(linea);
-    string palabra;
-    string unidad;
-    float valor;
+    
+    string lineaMinusculas = "";
+    for (char c : linea) {
+        lineaMinusculas += toLowerChar(c);
+    }
 
-    while (ss >> palabra) {
-        try {
-            valor = stof(palabra);
-            if (ss >> unidad) {
-                if (unidad.find("prec") != string::npos) {
-                    precision += valor;
-                } else if (unidad.find("vid") != string::npos) {
-                    vida += static_cast<int>(valor);
-                }
+    istringstream streamMinusculas(lineaMinusculas);
+    string token;
+    string valorActualStr;
+    bool esperandoValor = false;
+
+    while (streamMinusculas >> token) {
+        if (token == "+" || token == "-") {
+            valorActualStr = token;
+            esperandoValor = true;
+        } else if (esperandoValor) {
+            valorActualStr += token;
+            esperandoValor = false;
+        } else if (token.find("vida") != string::npos || token.find("vid") != string::npos) {
+            if (!valorActualStr.empty()) {
+                try {
+                    vida += stoi(valorActualStr);
+                } catch (...) {}
+                valorActualStr = "";
             }
-        } catch (const invalid_argument& e) {
-            continue;
-        } catch (const out_of_range& e) {
-            cerr << "Advertencia: Valor numerico fuera de rango en parsearEfectos: " << palabra << endl;
-            continue;
+        } else if (token.find("precision") != string::npos || token.find("prec") != string::npos) {
+            if (!valorActualStr.empty()) {
+                try {
+                    precision += stof(valorActualStr);
+                } catch (...) {}
+                valorActualStr = "";
+            }
         }
     }
 }
 
 NodoHabitacion* construirArbol(int id) {
-    // Validar el ID contra el array fijo y el puntero nulo
-    if (id < 0 || id >= 100 || habitaciones[id] == nullptr) { // 100 es el tamaño fijo
+    if (id < 0 || id >= 100 || habitaciones[id] == nullptr) {
         return nullptr;
     }
 
     NodoHabitacion* nodo = new NodoHabitacion{habitaciones[id], nullptr, nullptr, nullptr};
 
     for (int i = 0; i < 3; ++i) {
-        int destino_id = conexiones[id][i];
-        // Solo construir el hijo si el destino es válido y el puntero al Habitacion no es nulo
-        if (destino_id != -1 && destino_id < 100 && habitaciones[destino_id] != nullptr) { // 100 es el tamaño fijo
-            if (i == 0) nodo->hijo1 = construirArbol(destino_id);
-            else if (i == 1) nodo->hijo2 = construirArbol(destino_id);
-            else if (i == 2) nodo->hijo3 = construirArbol(destino_id);
+        int idDestino = conexiones[id][i];
+        if (idDestino != -1 && idDestino < 100 && habitaciones[idDestino] != nullptr) {
+            if (i == 0) nodo->hijo1 = construirArbol(idDestino);
+            else if (i == 1) nodo->hijo2 = construirArbol(idDestino);
+            else if (i == 2) nodo->hijo3 = construirArbol(idDestino);
         }
     }
     return nodo;
@@ -144,30 +169,29 @@ void aplicarEvento(Jugador &jugador) {
         return;
     }
 
-    int elegido = rand() % totalEventos;
-    Evento &e = eventos[elegido]; // Acceso al array fijo
+    int indiceElegido = rand() % totalEventos;
+    Evento &eventoElegido = eventos[indiceElegido];
 
-    cout << "\n[Evento: " << e.nombre << "]\n" << e.descripcion << endl;
-    cout << "A: " << e.opcionA_texto << endl;
-    cout << "B: " << e.opcionB_texto << endl;
+    cout << "\n[Evento: " << eventoElegido.nombre << "]\n" << eventoElegido.descripcion << endl;
+    cout << "A: " << eventoElegido.opcionA_texto << endl;
+    cout << "B: " << eventoElegido.opcionB_texto << endl;
     
     char eleccion;
     cin >> eleccion;
 
     if (eleccion == 'A' || eleccion == 'a') {
-        cout << e.opcionA_consecuencia << endl;
-        jugador.vida += e.opcionA_vida;
-        jugador.precision += e.opcionA_precision;
+        cout << eventoElegido.opcionA_consecuencia << endl;
+        jugador.vida += eventoElegido.opcionA_vida;
+        jugador.precision += eventoElegido.opcionA_precision;
     } else if (eleccion == 'B' || eleccion == 'b') {
-        cout << e.opcionB_consecuencia << endl;
-        jugador.vida += e.opcionB_vida;
-        jugador.precision += e.opcionB_precision;
+        cout << eventoElegido.opcionB_consecuencia << endl;
+        jugador.vida += eventoElegido.opcionB_vida;
+        jugador.precision += eventoElegido.opcionB_precision;
     } else {
         cout << "Opcion invalida. No se aplica ningun efecto.\n";
     }
     cout << "Vida: " << jugador.vida << ", Precision: " << jugador.precision << endl;
 }
-
 
 void combate(Jugador &jugador) {
     if (totalEnemigos == 0) {
@@ -175,43 +199,51 @@ void combate(Jugador &jugador) {
         return;
     }
 
-    int indice_enemigo = rand() % totalEnemigos;
-    Enemigo e = enemigos[indice_enemigo]; // Copia local del enemigo para el combate
+    int indiceEnemigo = rand() % totalEnemigos;
+    Enemigo enemigoActual = enemigos[indiceEnemigo];
 
-    cout << "\nCombate contra: " << e.nombre << endl;
-    while (e.vida > 0 && jugador.vida > 0) {
-        cout << "\nTu turno. (Vida: " << jugador.vida << ", Enemigo Vida: " << e.vida << ")\n";
-        if (randomFloat() < jugador.precision) {
-            e.vida -= jugador.ataque;
-            cout << "Atacas e infliges " << jugador.ataque << " de dano. Vida de " << e.nombre << ": " << e.vida << endl;
+    cout << "\nEntras a una habitacion y encuentras a un monstruo: " << enemigoActual.nombre << "!\n";
+    cout << "Jugador | " << enemigoActual.nombre << "\n";
+    cout << jugador.vida << " | " << enemigoActual.vida << "\n";
+
+    while (enemigoActual.vida > 0 && jugador.vida > 0) {
+        cout << "\nJugador golpea a " << enemigoActual.nombre << " por " << jugador.ataque << " de dano!\n";
+        if (generarFloatAleatorio() < jugador.precision) {
+            enemigoActual.vida -= jugador.ataque;
         } else {
             cout << "Fallaste el ataque.\n";
         }
+        cout << "Jugador | " << enemigoActual.nombre << "\n";
+        cout << jugador.vida << " | " << enemigoActual.vida << "\n";
 
-        if (e.vida > 0) {
-            if (randomFloat() < e.precision) {
-                jugador.vida -= e.ataque;
-                cout << e.nombre << " te golpea e inflige " << e.ataque << " de dano. Tu vida actual: " << jugador.vida << endl;
-            } else {
-                cout << e.nombre << " fallo el ataque.\n";
-            }
+        if (enemigoActual.vida <= 0) {
+            break;
         }
+
+        cout << "\n" << enemigoActual.nombre << " golpea a Jugador por " << enemigoActual.ataque << " de dano!\n";
+        if (generarFloatAleatorio() < enemigoActual.precision) {
+            jugador.vida -= enemigoActual.ataque;
+        } else {
+            cout << enemigoActual.nombre << " fallo el ataque.\n";
+        }
+        cout << "Jugador | " << enemigoActual.nombre << "\n";
+        cout << jugador.vida << " | " << enemigoActual.vida << "\n";
     }
 
     if (jugador.vida <= 0) {
-        cout << "\nHas muerto en combate contra " << e.nombre << "...\n";
+        cout << "\nHas muerto en combate contra " << enemigoActual.nombre << "...\n";
         exit(0);
     } else {
-        cout << "\n¡Has derrotado a " << e.nombre << "!\n";
+        cout << "\n¡Has derrotado a " << enemigoActual.nombre << "!\n";
         cout << "\nElige una mejora:\n";
         cout << "1. +3 Vida\n";
         cout << "2. +0.2 Precision\n";
         cout << "3. +5 Ataque\n";
-        int op;
-        cin >> op;
-        if (op == 1) jugador.vida += 3;
-        else if (op == 2) jugador.precision += 0.2f;
-        else if (op == 3) jugador.ataque += 5;
+        int opcion;
+        cin >> opcion;
+        if (opcion == 1) jugador.vida += 3;
+        else if (opcion == 2) jugador.precision += 0.2f;
+        else if (opcion == 3) jugador.ataque += 5;
         else cout << "Opcion de mejora invalida. No se aplico ninguna mejora.\n";
         cout << "Mejoras aplicadas. Vida: " << jugador.vida << ", Precision: " << jugador.precision << ", Ataque: " << jugador.ataque << endl;
     }
@@ -231,33 +263,31 @@ void jugar(NodoHabitacion* actual, Jugador &jugador) {
         return;
     }
 
-    cout << "\n>> " << actual->hab->nombre << " (" << actual->hab->tipo << ")\n";
-    cout << actual->hab->descripcion << "\n";
+    cout << "\n>> " << actual->habitacion->nombre << " (" << actual->habitacion->tipo << ")\n";
+    cout << actual->habitacion->descripcion << "\n";
 
-    if (actual->hab->tipo == "COMBATE") {
+    if (actual->habitacion->tipo == "COMBATE") {
         combate(jugador);
-    } else if (actual->hab->tipo == "EVENTO") {
+    } else if (actual->habitacion->tipo == "EVENTO") {
         aplicarEvento(jugador);
-    } else if (actual->hab->tipo == "FIN") {
+    } else if (actual->habitacion->tipo == "FIN") {
         cout << "\n==> FIN DEL JUEGO <==\n";
-        if (actual->hab->id == 11)
+        if (actual->habitacion->id == 11)
             cout << "¡Has ganado el juego!\n";
         else
             cout << "Has llegado a un final alternativo.\n";
         
-        liberarArbol(actual); // Libera los nodos del árbol
-        // Liberar la memoria de los objetos Habitacion
+        liberarArbol(actual);
         for (int i = 0; i < totalHabitaciones; ++i) {
             delete habitaciones[i];
-            habitaciones[i] = nullptr; // Opcional: para evitar doble borrado si se llama de nuevo
+            habitaciones[i] = nullptr;
         }
         exit(0);
     }
 
     if (jugador.vida <= 0) {
         cout << "Tu vida ha llegado a 0. ¡Fin del juego!\n";
-        // Liberar la memoria antes de salir si el juego termina por muerte aquí
-        liberarArbol(actual); // Libera el subárbol actual
+        liberarArbol(actual);
         for (int i = 0; i < totalHabitaciones; ++i) {
             delete habitaciones[i];
             habitaciones[i] = nullptr;
@@ -266,19 +296,19 @@ void jugar(NodoHabitacion* actual, Jugador &jugador) {
     }
 
     cout << "\nOpciones de destino:\n";
-    int num_opciones = 0;
-    if (actual->hijo1) { cout << "1. " << actual->hijo1->hab->nombre << endl; num_opciones++; }
-    if (actual->hijo2) { cout << "2. " << actual->hijo2->hab->nombre << endl; num_opciones++; }
-    if (actual->hijo3) { cout << "3. " << actual->hijo3->hab->nombre << endl; num_opciones++; }
+    int numeroOpciones = 0;
+    if (actual->hijo1) { cout << "1. " << actual->hijo1->habitacion->nombre << endl; numeroOpciones++; }
+    if (actual->hijo2) { cout << "2. " << actual->hijo2->habitacion->nombre << endl; numeroOpciones++; }
+    if (actual->hijo3) { cout << "3. " << actual->hijo3->habitacion->nombre << endl; numeroOpciones++; }
 
-    if (num_opciones == 0) {
+    if (numeroOpciones == 0) {
         cout << "No hay mas caminos a seguir desde aqui. Fin del juego.\n";
-        liberarArbol(actual); // Libera el subárbol actual
+        liberarArbol(actual);
         for (int i = 0; i < totalHabitaciones; ++i) {
             delete habitaciones[i];
             habitaciones[i] = nullptr;
         }
-        return; // Salir de la recursión si no hay más opciones
+        return;
     }
 
     cout << "Seleccione una opcion: ";
@@ -300,7 +330,7 @@ void jugar(NodoHabitacion* actual, Jugador &jugador) {
             break;
         default:
             cout << "Opcion invalida. Fin del juego.\n";
-            liberarArbol(actual); // Libera el subárbol actual
+            liberarArbol(actual);
             for (int i = 0; i < totalHabitaciones; ++i) {
                 delete habitaciones[i];
                 habitaciones[i] = nullptr;
@@ -311,7 +341,6 @@ void jugar(NodoHabitacion* actual, Jugador &jugador) {
 }
 
 int main() {
-    // Inicializar punteros de Habitacion a nullptr
     for (int i = 0; i < 100; ++i) {
         habitaciones[i] = nullptr;
         for (int j = 0; j < 3; ++j) {
@@ -326,155 +355,124 @@ int main() {
         return 1;
     }
 
-    string temp_line;
-    getline(archivo, temp_line); // "INICIO DE ARCHIVO"
-    getline(archivo, temp_line); // "HABITACIONES"
+    string lineaTemporal;
+    getline(archivo, lineaTemporal);
+    getline(archivo, lineaTemporal);
     int cantidadHabitacionesArchivo = leerEnteroSeguro(archivo);
 
-    // Si el número de habitaciones en el archivo excede el tamaño del array
     if (cantidadHabitacionesArchivo > 100) {
         cerr << "Error: El numero de habitaciones en el archivo (" << cantidadHabitacionesArchivo << ") excede el limite del programa (100)." << endl;
         return 1;
     }
-    totalHabitaciones = cantidadHabitacionesArchivo; // Actualizar el contador global
+    totalHabitaciones = cantidadHabitacionesArchivo;
 
-    for (int i = 0; i < totalHabitaciones; ++i) { // Iterar hasta totalHabitaciones
-        string def = leerLineaSegura(archivo);
-        if (def.empty()) {
-            cerr << "Error: Linea de definicion de habitacion vacia inesperada." << endl;
-            exit(1);
-        }
-        string desc = leerLineaSegura(archivo);
-        if (desc.empty()) {
-            cerr << "Error: Linea de descripcion de habitacion vacia inesperada." << endl;
-            exit(1);
-        }
+    for (int i = 0; i < totalHabitaciones; ++i) {
+        string definicion = leerLineaSegura(archivo);
+        string descripcion = leerLineaSegura(archivo);
         
-        size_t pos_id_end = def.find(" ");
-        int id = stoi(def.substr(0, pos_id_end));
+        size_t posFinId = definicion.find(" ");
+        int id = stoi(definicion.substr(0, posFinId));
         
-        size_t pos_name_start = pos_id_end + 1;
-        size_t pos_type_start = def.find("(", pos_name_start);
-        string nombre = def.substr(pos_name_start, pos_type_start - pos_name_start -1);
+        size_t posInicioNombre = posFinId + 1;
+        size_t posInicioTipo = definicion.find("(", posInicioNombre);
+        string nombre = definicion.substr(posInicioNombre, posInicioTipo - posInicioNombre -1);
         
-        string tipo = def.substr(pos_type_start + 1);
+        string tipo = definicion.substr(posInicioTipo + 1);
         tipo.pop_back();
 
-        if (id >= 0 && id < 100) { // Usar 100 como límite
-            habitaciones[id] = new Habitacion{id, nombre, tipo, desc};
+        if (id >= 0 && id < 100) {
+            habitaciones[id] = new Habitacion{id, nombre, tipo, descripcion};
         } else {
             cerr << "Error: ID de habitacion " << id << " fuera de rango o invalido.\n";
-            // Liberar memoria ya asignada antes de salir
             for (int k = 0; k < 100; ++k) delete habitaciones[k];
             return 1;
         }
     }
 
-    getline(archivo, temp_line); // "ARCOS"
+    getline(archivo, lineaTemporal);
     int cantidadArcos = leerEnteroSeguro(archivo);
     for (int i = 0; i < cantidadArcos; ++i) {
         string arco = leerLineaSegura(archivo);
-        if (arco.empty()) {
-             cerr << "Error: Linea de arco vacia inesperada." << endl;
-             exit(1);
-        }
-        size_t arrow_pos = arco.find("->");
-        int a = stoi(arco.substr(0, arrow_pos));
-        int b = stoi(arco.substr(arrow_pos + 2));
+        size_t posFlecha = arco.find("->");
+        int origen = stoi(arco.substr(0, posFlecha));
+        int destino = stoi(arco.substr(posFlecha + 2));
 
-        if (a >= 0 && a < 100) {
-            bool added = false;
+        if (origen >= 0 && origen < 100) {
+            bool agregado = false;
             for (int j = 0; j < 3; ++j) {
-                if (conexiones[a][j] == -1) {
-                    conexiones[a][j] = b;
-                    added = true;
+                if (conexiones[origen][j] == -1) {
+                    conexiones[origen][j] = destino;
+                    agregado = true;
                     break;
                 }
             }
-            if (!added) {
-                cerr << "Advertencia: Demasiadas conexiones para la habitacion " << a << ". Se ignoro la conexion a " << b << endl;
+            if (!agregado) {
+                cerr << "Advertencia: Demasiadas conexiones para la habitacion " << origen << ". Se ignoro la conexion a " << destino << endl;
             }
         } else {
-            cerr << "Error: ID de origen de arco " << a << " fuera de rango.\n";
+            cerr << "Error: ID de origen de arco " << origen << " fuera de rango.\n";
         }
     }
 
-    getline(archivo, temp_line); // "ENEMIGOS"
-    int num_enemigos_archivo = leerEnteroSeguro(archivo);
-    if (num_enemigos_archivo > 10) {
-        cerr << "Error: El numero de enemigos en el archivo (" << num_enemigos_archivo << ") excede el limite del programa (10)." << endl;
-        // Liberar memoria ya asignada antes de salir
+    getline(archivo, lineaTemporal);
+    int numEnemigosArchivo = leerEnteroSeguro(archivo);
+    if (numEnemigosArchivo > 10) {
+        cerr << "Error: El numero de enemigos en el archivo (" << numEnemigosArchivo << ") excede el limite del programa (10)." << endl;
         for (int k = 0; k < 100; ++k) delete habitaciones[k];
         return 1;
     }
-    totalEnemigos = num_enemigos_archivo; // Actualizar contador global
+    totalEnemigos = numEnemigosArchivo;
 
-    for (int i = 0; i < totalEnemigos; ++i) { // Iterar hasta totalEnemigos
-        string linea = leerLineaSegura(archivo);
-        if (linea.empty()) {
-            cerr << "Error: Linea de enemigo vacia inesperada." << endl;
-            exit(1);
-        }
-        size_t p_name_end = linea.find(" (Vida: ");
-        if (p_name_end == string::npos) { cerr << "Error de formato de enemigo (Vida)." << endl; exit(1); }
-        enemigos[i].nombre = linea.substr(0, p_name_end);
-
-        size_t p_vida_start = p_name_end + 8;
-        size_t p_vida_end = linea.find(", Ataque: ", p_vida_start);
-        if (p_vida_end == string::npos) { cerr << "Error de formato de enemigo (Ataque)." << endl; exit(1); }
-        enemigos[i].vida = stoi(linea.substr(p_vida_start, p_vida_end - p_vida_start));
-
-        size_t p_ataque_start = p_vida_end + 10;
-        size_t p_ataque_end = linea.find(", Precision: ", p_ataque_start);
-        if (p_ataque_end == string::npos) { cerr << "Error de formato de enemigo (Precision)." << endl; exit(1); }
-        enemigos[i].ataque = stoi(linea.substr(p_ataque_start, p_ataque_end - p_ataque_start));
-
-        size_t p_prec_start = p_ataque_end + 13;
-        size_t p_prec_end = linea.find(", Probabilidad: ", p_prec_start);
-        if (p_prec_end == string::npos) { cerr << "Error de formato de enemigo (Probabilidad)." << endl; exit(1); }
-        enemigos[i].precision = stof(linea.substr(p_prec_start, p_prec_end - p_prec_start));
-
-        size_t p_prob_start = p_prec_end + 16;
-        enemigos[i].probabilidad = stof(linea.substr(p_prob_start));
-    }
-
-
-    getline(archivo, temp_line); // "EVENTOS"
-    int num_eventos_archivo = leerEnteroSeguro(archivo);
-    if (num_eventos_archivo > 10) {
-        cerr << "Error: El numero de eventos en el archivo (" << num_eventos_archivo << ") excede el limite del programa (10)." << endl;
-        // Liberar memoria ya asignada antes de salir
-        for (int k = 0; k < 100; ++k) delete habitaciones[k];
-        return 1;
-    }
-    totalEventos = num_eventos_archivo; // Actualizar contador global
-
-    for (int i = 0; i < totalEventos; ++i) { // Iterar hasta totalEventos
-        getline(archivo, temp_line); // "&"
-        eventos[i].nombre = leerLineaSegura(archivo);
-        if (eventos[i].nombre.empty()) { cerr << "Error: nombre de evento vacio." << endl; exit(1); }
-
-        string prob_line = leerLineaSegura(archivo);
-        if (prob_line.empty()) { cerr << "Error: linea de probabilidad de evento vacia." << endl; exit(1); }
-        eventos[i].probabilidad = stof(prob_line.substr(prob_line.find(" ") + 1));
+    for (int i = 0; i < totalEnemigos; ++i) {
+        string lineaEnemigo = leerLineaSegura(archivo);
         
+        size_t posFinNombre = lineaEnemigo.find(" | Vida ");
+        if (posFinNombre == string::npos) { cerr << "Error de formato de enemigo (Nombre). Linea: '" << lineaEnemigo << "'" << endl; exit(1); }
+        enemigos[i].nombre = lineaEnemigo.substr(0, posFinNombre);
+
+        size_t posInicioVida = posFinNombre + 8;
+        size_t posFinVida = lineaEnemigo.find(" | Ataque ", posInicioVida);
+        if (posFinVida == string::npos) { cerr << "Error de formato de enemigo (Vida). Linea: '" << lineaEnemigo << "'" << endl; exit(1); }
+        enemigos[i].vida = stoi(lineaEnemigo.substr(posInicioVida, posFinVida - posInicioVida));
+
+        size_t posInicioAtaque = posFinVida + 10;
+        size_t posFinAtaque = lineaEnemigo.find(" | Precision ", posInicioAtaque);
+        if (posFinAtaque == string::npos) { cerr << "Error de formato de enemigo (Precision). Linea: '" << lineaEnemigo << "'" << endl; exit(1); }
+        enemigos[i].ataque = stoi(lineaEnemigo.substr(posInicioAtaque, posFinAtaque - posInicioAtaque));
+
+        size_t posInicioPrecision = posFinAtaque + 13;
+        size_t posFinPrecision = lineaEnemigo.find(" | Probabilidad ", posInicioPrecision);
+        if (posFinPrecision == string::npos) { cerr << "Error de formato de enemigo (Probabilidad). Linea: '" << lineaEnemigo << "'" << endl; exit(1); }
+        enemigos[i].precision = stof(lineaEnemigo.substr(posInicioPrecision, posFinPrecision - posInicioPrecision));
+
+        size_t posInicioProbabilidad = posFinPrecision + 16;
+        enemigos[i].probabilidad = stof(lineaEnemigo.substr(posInicioProbabilidad));
+    }
+
+    getline(archivo, lineaTemporal);
+    int numEventosArchivo = leerEnteroSeguro(archivo);
+    if (numEventosArchivo > 10) {
+        cerr << "Error: El numero de eventos en el archivo (" << numEventosArchivo << ") excede el limite del programa (10)." << endl;
+        for (int k = 0; k < 100; ++k) delete habitaciones[k];
+        return 1;
+    }
+    totalEventos = numEventosArchivo;
+
+    for (int i = 0; i < totalEventos; ++i) {
+        getline(archivo, lineaTemporal);
+        eventos[i].nombre = leerLineaSegura(archivo);
+        string lineaProbabilidad = leerLineaSegura(archivo);
+        eventos[i].probabilidad = stof(lineaProbabilidad.substr(lineaProbabilidad.find(" ") + 1));
         eventos[i].descripcion = leerLineaSegura(archivo);
-        if (eventos[i].descripcion.empty()) { cerr << "Error: descripcion de evento vacia." << endl; exit(1); }
 
         eventos[i].opcionA_texto = leerLineaSegura(archivo);
-        if (eventos[i].opcionA_texto.empty()) { cerr << "Error: texto A de evento vacio." << endl; exit(1); }
         eventos[i].opcionA_consecuencia = leerLineaSegura(archivo);
-        if (eventos[i].opcionA_consecuencia.empty()) { cerr << "Error: consecuencia A de evento vacio." << endl; exit(1); }
         string efectoA = leerLineaSegura(archivo);
-        if (efectoA.empty()) { cerr << "Error: efecto A de evento vacio." << endl; exit(1); }
         parsearEfectos(efectoA, eventos[i].opcionA_vida, eventos[i].opcionA_precision);
 
         eventos[i].opcionB_texto = leerLineaSegura(archivo);
-        if (eventos[i].opcionB_texto.empty()) { cerr << "Error: texto B de evento vacio." << endl; exit(1); }
         eventos[i].opcionB_consecuencia = leerLineaSegura(archivo);
-        if (eventos[i].opcionB_consecuencia.empty()) { cerr << "Error: consecuencia B de evento vacio." << endl; exit(1); }
         string efectoB = leerLineaSegura(archivo);
-        if (efectoB.empty()) { cerr << "Error: efecto B de evento vacio." << endl; exit(1); }
         parsearEfectos(efectoB, eventos[i].opcionB_vida, eventos[i].opcionB_precision);
     }
     archivo.close();
@@ -492,15 +490,11 @@ int main() {
         return 1;
     }
 
-    Jugador jugador;
-    jugar(raiz, jugador);
+    Jugador jugadorPrincipal;
+    jugar(raiz, jugadorPrincipal);
 
-    // Este bloque de liberacion de memoria solo se alcanzará si la funcion jugar
-    // no termina con exit(), lo cual es poco probable para un juego completo.
-    // La liberacion de memoria principal se hace dentro de jugar() al alcanzar un FIN o morir.
     liberarArbol(raiz);
     for (int i = 0; i < 100; ++i) delete habitaciones[i];
 
     return 0;
 }
-
