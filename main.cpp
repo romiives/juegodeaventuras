@@ -1,6 +1,3 @@
-#include <iostream>
-#include <fstream>
-#include <string>
 #include <cstdlib>
 #include <ctime>
 #include <sstream>
@@ -178,7 +175,6 @@ void aplicarEvento(Jugador &jugador) {
     
     char eleccion;
     cin >> eleccion;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar el buffer después de leer el carácter
 
     if (eleccion == 'A' || eleccion == 'a') {
         cout << eventoElegido.opcionA_consecuencia << endl;
@@ -242,7 +238,6 @@ void combate(Jugador &jugador) {
         cout << "3. +5 Ataque\n";
         int opcion;
         cin >> opcion;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar el buffer después de leer el entero
         if (opcion == 1) jugador.vida += 3;
         else if (opcion == 2) jugador.precision += 0.2f;
         else if (opcion == 3) jugador.ataque += 5;
@@ -316,7 +311,6 @@ void jugar(NodoHabitacion* actual, Jugador &jugador) {
     cout << "Seleccione una opcion: ";
     int opcion;
     cin >> opcion;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Limpiar el buffer después de leer el entero
 
     switch (opcion) {
         case 1:
@@ -344,9 +338,6 @@ void jugar(NodoHabitacion* actual, Jugador &jugador) {
 }
 
 int main() {
-    // Es necesario incluir <limits> para numeric_limits
-    #include <limits> 
-
     for (int i = 0; i < 100; ++i) {
         habitaciones[i] = nullptr;
         for (int j = 0; j < 3; ++j) {
