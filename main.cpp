@@ -175,9 +175,10 @@ void aplicarEvento(Jugador &jugador) {
     int indiceElegido = rand() % totalEventos;
     Evento &eventoElegido = eventos[indiceElegido];
 
-    cout << "\n[Evento: " << eventoElegido.nombre << "]\n" << eventoElegido.descripcion << endl;
-    cout << "A: " << eventoElegido.opcionA_texto << endl;
-    cout << "B: " << eventoElegido.opcionB_texto << endl;
+    cout << "\n[Evento: " << eventoElegido.nombre << "]\n";
+    cout << eventoElegido.descripcion << endl;
+    cout << eventoElegido.opcionA_texto << endl;
+    cout << eventoElegido.opcionB_texto << endl;
     
     char eleccion;
     cin >> eleccion;
@@ -193,6 +194,7 @@ void aplicarEvento(Jugador &jugador) {
     } else {
         cout << "Opcion invalida. No se aplica ningun efecto.\n";
     }
+
     cout << "Vida: " << jugador.vida << ", Precision: " << jugador.precision << endl;
 }
 
@@ -219,32 +221,39 @@ void combate(Jugador &jugador) {
             cout << "❌ Tu magia falló. El viento se burla de ti, estamos decepcionados.\n";
         }
 
-        cout << "Tú 🧝 | " << enemigoActual.nombre << " 👾\n";
+        cout << "Tú | " << enemigoActual.nombre << " 👾\n";
         cout << jugador.vida << " ❤️ | " << enemigoActual.vida << " 💢\n";
 
         if (enemigoActual.vida <= 0) break;
 
-        cout << "\n👿 " << enemigoActual.nombre << " contraataca con una nube de oscuridad...\n";
+        cout << "\n ->" << enemigoActual.nombre << " contraataca...\n";
         if (generarFloatAleatorio() < enemigoActual.precision) {
             jugador.vida -= enemigoActual.ataque;
             cout << "💔 Has recibido " << enemigoActual.ataque << " de daño de magia oscura.\n";
         } else {
-            cout << "🌪️ ¡Siii, lo esquivaste! Como una mariposa guerrera.\n";
+            cout << "🌪️ ¡Siii, lo esquivaste!\n";
         }
 
-        cout << "Tú 🧝 | " << enemigoActual.nombre << " 👾\n";
+        cout << "Tú | " << enemigoActual.nombre << " 👾\n";
         cout << jugador.vida << " ❤️ | " << enemigoActual.vida << " 💢\n";
     }
 
     if (jugador.vida <= 0) {
-        cout << "\n🪦 Te han vencido... pero tu espíritu sigue refulgiendo en el bosque.\n";
+        cout << "\n🪦 Haz perdido... pero tu espíritu seguirá con nosotros.\n";
         exit(0);
     } else {
-        cout << "\n🏆 ¡Victoria radiante! Has derrotado a " << enemigoActual.nombre << " con nobleza.\n";
-        cout << "\n💫 Elige una bendición mágica:\n";
-        cout << "1. ✨ +3 Vida (un bálsamo de flores)\n";
-        cout << "2. 🎯 +0.2 Precisión (visión de elfo lunar)\n";
-        cout << "3. 🔥 +5 Ataque (fuerza del dragón dormido)\n";
+        cout << "\n🏆 Esoo, ¡Ganaste! Has derrotado a " << enemigoActual.nombre << ".\n";
+
+        // Mostrar estadísticas antes de mejora
+        cout << "\n -> Tus estadísticas actuales:\n";
+        cout << "❤️  Vida: " << jugador.vida << endl;
+        cout << "🎯  Precisión: " << jugador.precision << endl;
+        cout << "⚔️  Ataque: " << jugador.ataque << endl; 
+
+        cout << "\n-> Elige una mejora:\n";
+        cout << "1. ✨ +3 Vida\n";
+        cout << "2. 🎯 +0.2 Precisión\n";
+        cout << "3. 🔥 +5 Ataque\n";
 
         int opcion;
         cin >> opcion;
@@ -252,11 +261,14 @@ void combate(Jugador &jugador) {
         if (opcion == 1) jugador.vida += 3;
         else if (opcion == 2) jugador.precision += 0.2f;
         else if (opcion == 3) jugador.ataque += 5;
-        else cout << "🤔 No entendí tu deseo... no se aplicó ninguna bendición.\n";
+        else cout << "-> No entendí tu deseo... no se aplicó ninguna mejora.\n";
 
-        cout << "\n🧚 Estado actual: Vida = " << jugador.vida << " | Precisión = " << jugador.precision << " | Ataque = " << jugador.ataque << "\n";
+        // Mostrar estadísticas actualizadas
+        cout << "\n🧚 Estado tras mejora:\n";
+        cout << "❤️ Vida = " << jugador.vida << " | 🎯 Precisión = " << jugador.precision << " | ⚔️ Ataque = " << jugador.ataque << "\n";
     }
 }
+
 
 void liberarArbol(NodoHabitacion* nodo) {
     if (!nodo) return;
@@ -268,11 +280,11 @@ void liberarArbol(NodoHabitacion* nodo) {
 
 void jugar(NodoHabitacion* actual, Jugador &jugador) {
     if (!actual) {
-        cout << "Error: Habitacion actual es nula. Fin del juego inesperado.\n";
+        cout << "Error: La habitacion actual es nula. Fin del juego inesperado.\n";
         return;
     }
 
-    cout << "\n>> " << actual->habitacion->nombre << " (" << actual->habitacion->tipo << ")\n";
+    cout << "\n>> " << actual->habitacion->nombre << "\n";
     cout << actual->habitacion->descripcion << "\n";
 
     if (actual->habitacion->tipo == "COMBATE") {
@@ -280,9 +292,9 @@ void jugar(NodoHabitacion* actual, Jugador &jugador) {
     } else if (actual->habitacion->tipo == "EVENTO") {
         aplicarEvento(jugador);
     } else if (actual->habitacion->tipo == "FIN") {
-        cout << "\n==> FIN DEL JUEGO <==\n";
+        cout << "\n==> FIN DEL JUEGO \n";
         if (actual->habitacion->id == 11)
-            cout << "¡Has ganado el juego!\n";
+            cout << "Súper, ¡Haz ganado el juego!\n";
         else
             cout << "Has llegado a un final alternativo.\n";
         
@@ -295,7 +307,7 @@ void jugar(NodoHabitacion* actual, Jugador &jugador) {
     }
 
     if (jugador.vida <= 0) {
-        cout << "Tu vida ha llegado a 0. ¡Fin del juego!\n";
+        cout << "Tu vida ha llegado a 0. Haz perdido. ¡Fin del juego!\n";
         liberarArbol(actual);
         for (int i = 0; i < totalHabitaciones; ++i) {
             delete habitaciones[i];
