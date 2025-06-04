@@ -1,3 +1,6 @@
+#include <iostream>
+#include <fstream>
+#include <string>
 #include <cstdlib>
 #include <ctime>
 #include <sstream>
@@ -348,7 +351,7 @@ int main() {
 
     ifstream archivo("data.map");
     if (!archivo.is_open()) {
-        cout << "Error: No se pudo abrir el archivo data.map" << endl;
+        cerr << "Error: No se pudo abrir el archivo data.map" << endl;
         return 1;
     }
 
@@ -358,7 +361,7 @@ int main() {
     int cantidadHabitacionesArchivo = leerEnteroSeguro(archivo);
 
     if (cantidadHabitacionesArchivo > 100) {
-        cout << "Error: El numero de habitaciones en el archivo (" << cantidadHabitacionesArchivo << ") excede el limite del programa (100)." << endl;
+        cerr << "Error: El numero de habitaciones en el archivo (" << cantidadHabitacionesArchivo << ") excede el limite del programa (100)." << endl;
         return 1;
     }
     totalHabitaciones = cantidadHabitacionesArchivo;
@@ -380,7 +383,7 @@ int main() {
         if (id >= 0 && id < 100) {
             habitaciones[id] = new Habitacion{id, nombre, tipo, descripcion};
         } else {
-            cout << "Error: ID de habitacion " << id << " fuera de rango o invalido.\n";
+            cerr << "Error: ID de habitacion " << id << " fuera de rango o invalido.\n";
             for (int k = 0; k < 100; ++k) delete habitaciones[k];
             return 1;
         }
@@ -407,14 +410,14 @@ int main() {
                 cerr << "Advertencia: Demasiadas conexiones para la habitacion " << origen << ". Se ignoro la conexion a " << destino << endl;
             }
         } else {
-            cout << "Error: ID de origen de arco " << origen << " fuera de rango.\n";
+            cerr << "Error: ID de origen de arco " << origen << " fuera de rango.\n";
         }
     }
 
     getline(archivo, lineaTemporal);
     int numEnemigosArchivo = leerEnteroSeguro(archivo);
     if (numEnemigosArchivo > 10) {
-        cout << "Error: El numero de enemigos en el archivo (" << numEnemigosArchivo << ") excede el limite del programa (10)." << endl;
+        cerr << "Error: El numero de enemigos en el archivo (" << numEnemigosArchivo << ") excede el limite del programa (10)." << endl;
         for (int k = 0; k < 100; ++k) delete habitaciones[k];
         return 1;
     }
@@ -449,7 +452,7 @@ int main() {
     getline(archivo, lineaTemporal);
     int numEventosArchivo = leerEnteroSeguro(archivo);
     if (numEventosArchivo > 10) {
-        cout << "Error: El numero de eventos en el archivo (" << numEventosArchivo << ") excede el limite del programa (10)." << endl;
+        cerr << "Error: El numero de eventos en el archivo (" << numEventosArchivo << ") excede el limite del programa (10)." << endl;
         for (int k = 0; k < 100; ++k) delete habitaciones[k];
         return 1;
     }
@@ -482,7 +485,7 @@ int main() {
 
     NodoHabitacion* raiz = construirArbol(0);
     if (!raiz) {
-        cout << "Error: No se pudo construir el arbol de habitaciones desde la raiz (ID 0).\n";
+        cerr << "Error: No se pudo construir el arbol de habitaciones desde la raiz (ID 0).\n";
         for (int i = 0; i < 100; ++i) delete habitaciones[i];
         return 1;
     }
