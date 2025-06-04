@@ -5,9 +5,8 @@ HABITACIONES
 Te adentras en una selva y a tu alrededor observas mucha vegetación pero a la vez sospechas que algo anda mal
 1 Carpa de Circo Abandonada (COMBATE)
 Encuentras una carpa de circo en medio de la nada. Las luces parpadean. Un letrero dice “¡ENTRADA GRATIS!”. Dentro, risas grabadas suenan en bucle y ves una figura vestida de payaso... con una pantera encadenada que te observa. El payaso grita: “¡A divertirse!”
-2 Pradera de Punteros Malditos (COMBATE)
-Caminas por una pradera que debería ser segura, hasta que pisas un puntero sin inicializar. Todo empieza a temblar. Árboles con forma de árboles binarios intentan ordenarte alfabéticamente. ¡Las hadas del Heap no permitirán que escapes sin pelear!
-3 Cascada (EVENTO)
+2 Duelo de Hechiceros (COMBATE)
+Te topas con un círculo blanco en medio de la noche. Te paras en el y una persona encapuchada levita sobre el suelo delante tuyo, rodeada de murciélagos que gritan “¡Compila esto, tonto!”. Comienza un duelo de hechizos. Sólo uno puede quedar con vida.
 Llegas a una cascada y decides sumergirte por el calor, es ahi donde encuntras un tesoro
 4 Llanura (COMBATE)
 Sales de la selva y te encuntras en una llanura, en donde te esperara una tribu hostil
@@ -56,9 +55,9 @@ ARCOS
 ENEMIGOS 
 4
 Pantera | Vida 12 | Ataque 5 | Precision 0.8 | Probabilidad 0.4
-Tribu Hostil | Vida 15 | Ataque 4 | Precision 0.6 | Probabilidad 0.3
+Tribu | Vida 15 | Ataque 4 | Precision 0.6 | Probabilidad 0.3
 Serpiente Gigante | Vida 8 | Ataque 7 | Precision 0.5 | Probabilidad 0.2
-Bestia de la Cueva | Vida 20 | Ataque 10 | Precision 0.3 | Probabilidad 0.1
+Hechicero Loco | Vida 14 | Ataque 6 | Precision 0.6 | Probabilidad 0.5
 EVENTOS
 4
 &
