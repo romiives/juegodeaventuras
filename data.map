@@ -5,30 +5,30 @@ HABITACIONES
 Te adentras en una selva y a tu alrededor observas mucha vegetación pero a la vez sospechas que algo anda mal
 1 Carpa de Circo Abandonada (COMBATE)
 Encuentras una carpa de circo en medio de la nada. Las luces parpadean. Un letrero dice “¡ENTRADA GRATIS!”. Dentro, risas grabadas suenan en bucle y ves una figura vestida de payaso... con una pantera encadenada que te observa. El payaso grita: “¡A divertirse!”
-2 Camino (COMBATE)
-Caminas por un camino lodoso y peligroso, en donde serás atacado por una pantera
+2 Pradera de Punteros Malditos (COMBATE)
+Caminas por una pradera que debería ser segura, hasta que pisas un puntero sin inicializar. Todo empieza a temblar. Árboles con forma de árboles binarios intentan ordenarte alfabéticamente. ¡Las hadas del Heap no permitirán que escapes sin pelear!
 3 Cascada (EVENTO)
 Llegas a una cascada y decides sumergirte por el calor, es ahi donde encuntras un tesoro
 4 Llanura (COMBATE)
 Sales de la selva y te encuntras en una llanura, en donde te esperara una tribu hostil
 5 Cajero Automágico (EVENTO)
 En medio de la selva aparece un cajero automático brillante. Dice “Inserte Tarjeta Mágica”. No tienes una, pero igual ofrece dos botones: golpearlo o ignorarlo.
-6 Meteoritos (FIN)
-Cae una rafaga de meteoritos mientras caminabas por el sendero y mueres 
-7 Terremoto (FIN)
-Mientras caminabas por el sendero se abre la tierra producto de un terremoto, caes en una de las llanuras y mueres
+6 Hadas mágicas en concierto (FIN)
+Una nube rosa y brillante baja del cielo. Unas hadas mágicas te rodean cantando... cantando "Anti-Rana de Jordan 23", entonces explotas. El sistema no pudo manejar tanto. Mueres.
+7 Terremoto bailable (FIN)
+Mientras caminabas, te encuentras a checopete con un terremoto bailando "Un año más", mientras dice: "5, 4, 3, 2, 1... Feliz año nuevo!". No entiendes nada, tu cabeza explota porque no sabes si estábamos en el 18 o en año nuevo y por qué te encuentras a checopete. Mueres.
 8 Portal de la Verdad (FIN)
 Cruzas un portal luminoso. Una voz te dice: “Has sido un personaje en un videojuego de estructuras de datos. No existes”. Intentas gritar, pero solo hay líneas de código. Final: Se rompe la cuarta pared y el jugador se apaga. Literalmente.
 9 Sueño (FIN)
 Entras a una cabaña, te sientas en un sillon y te quedas dormido, y despiertas ayer.
 10 Neblina (FIN)
-estas en la selva y te rodea un mando de neblina tan espesa que quedas sin oxigeno, por lo tanto mueres asfixiado
+Estás en la calle, y te rodea una niebla espesa, se acerca un unicornio rosado, no lo viste venir, te dice "Hola personaje principal, solo vengo a mat-". Te vomitó un arcoíris encima. Mueres.
 11 Tesoro (FIN)
-Entregas el tesoro buscado por la tribu hace miles de años y deciden no matarte, ahora eres parte de la tribu, haz sobrevivido
+Entregas el tesoro buscado por la tribu hace miles de años y deciden no matarte,porque ya sufriste lo suficiente con esta tarea, ahora eres parte de la tribu, y eres feliz por siempre. Sobrevivido
 12 Ahogamineto (FIN)
-te sumergiste demasiado en la laguna de la cascada, por lo que mueres al no llegar a la superficie
+Te sumergiste demasiado en la laguna de la cascada, por lo que mueres al no llegar a la superficie
 13 Ruido (FIN)
-al entrar a la cueva, hiciste mucho ruido, el cual despierta a la bestia, te atacó y fuiste comido por la bestia, estas muerto
+Al entrar a la cueva, hiciste mucho ruido, el cual despierta a la bestia, te escuchó, pero eres tan lindo que se enamoró de ti y vivieron felices por siempre.
 14 Jardín de Cristal (COMBATE)
 Te adentras en un claro donde la luz del sol atraviesa los árboles y se fragmenta en mil colores por los cristales que brotan del suelo como flores. El aire huele a lavanda, mariposas resplandecientes revolotean a tu alrededor, y todo parece calmo... demasiado calmo.
 15 Pozo de los Deseos (EVENTO)
