@@ -7,6 +7,7 @@ Te adentras en una selva y a tu alrededor observas mucha vegetación pero a la v
 Encuentras una carpa de circo en medio de la nada. Las luces parpadean. Un letrero dice “¡ENTRADA GRATIS!”. Dentro, risas grabadas suenan en bucle y ves una figura vestida de payaso... con una pantera encadenada que te observa. El payaso grita: “¡A divertirse!”
 2 Duelo de Hechiceros (COMBATE)
 Te topas con un círculo blanco en medio de la noche. Te paras en el y una persona encapuchada levita sobre el suelo delante tuyo, rodeada de murciélagos que gritan “¡Compila esto, tonto!”. Comienza un duelo de hechizos. Sólo uno puede quedar con vida.
+3 Cascada (EVENTO)
 Llegas a una cascada y decides sumergirte por el calor, es ahi donde encuntras un tesoro
 4 Llanura (COMBATE)
 Sales de la selva y te encuntras en una llanura, en donde te esperara una tribu hostil
@@ -105,4 +106,3 @@ MEJORAS DE COMBATE
 +0.2 Precision
 +5 Ataque
 +4 Recuperacion
-FIN DE ARCHIVO

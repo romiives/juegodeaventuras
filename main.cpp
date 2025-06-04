@@ -15,7 +15,7 @@ char toLowerChar(char c) {
 
 using namespace std;
 
-//tda jugador
+//struct
 
 struct Jugador {
     int vida = 30;
@@ -207,16 +207,16 @@ void combate(Jugador &jugador) {
     int indiceEnemigo = rand() % totalEnemigos;
     Enemigo enemigoActual = enemigos[indiceEnemigo];
 
-    cout << "\n⚔️ Te adentras y... ¡Oh no! Aparece " << enemigoActual.nombre << " con mirada desafiante.\n";
+    cout << "\n⚔️ Te adentras y... Aparece " << enemigoActual.nombre << " con mirada desafiante.\n";
     cout << "¡Hora de combatir!\n\n";
-    cout << "Tú 🧝 | " << enemigoActual.nombre << " 👾\n";
+    cout << "Tú | " << enemigoActual.nombre << " 👾\n";
     cout << jugador.vida << " ❤️ | " << enemigoActual.vida << " 💢\n";
 
     while (enemigoActual.vida > 0 && jugador.vida > 0) {
         cout << "\n🪄 Lanzas un hechizo de ataque con esperanza de hacerle aunque sea algo de daño...\n";
         if (generarFloatAleatorio() < jugador.precision) {
             enemigoActual.vida -= jugador.ataque;
-            cout << "💥 ¡Impacto mágico! Le diste " << jugador.ataque << " de daño.\n";
+            cout << "💥 ¡Boom! Le diste " << jugador.ataque << " de daño.\n";
         } else {
             cout << "❌ Tu magia falló. El viento se burla de ti, estamos decepcionados.\n";
         }
@@ -244,7 +244,7 @@ void combate(Jugador &jugador) {
     } else {
         cout << "\n🏆 Esoo, ¡Ganaste! Has derrotado a " << enemigoActual.nombre << ".\n";
 
-        // Mostrar estadísticas antes de mejora
+        // Mostrar estadísticas antes de elegir una mejora
         cout << "\n -> Tus estadísticas actuales:\n";
         cout << "❤️  Vida: " << jugador.vida << endl;
         cout << "🎯  Precisión: " << jugador.precision << endl;
