@@ -14,6 +14,7 @@ char toLowerChar(char c) {
 }
 
 using namespace std;
+
 //tda jugador
 
 struct Jugador {
