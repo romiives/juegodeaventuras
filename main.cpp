@@ -5,6 +5,7 @@
 #include <ctime>
 #include <sstream>
 
+
 char toLowerChar(char c) {
     if (c >= 'A' && c <= 'Z') {
         return c + ('a' - 'A');
@@ -13,6 +14,7 @@ char toLowerChar(char c) {
 }
 
 using namespace std;
+//tda jugador
 
 struct Jugador {
     int vida = 30;
@@ -462,7 +464,23 @@ int main() {
         getline(archivo, lineaTemporal);
         eventos[i].nombre = leerLineaSegura(archivo);
         string lineaProbabilidad = leerLineaSegura(archivo);
-        eventos[i].probabilidad = stof(lineaProbabilidad.substr(lineaProbabilidad.find(" ") + 1));
+        size_t posEspacio = lineaProbabilidad.find(" ");
+if (posEspacio == string::npos) {
+    cerr << "Error: Formato inválido en la línea de probabilidad del evento: '" << lineaProbabilidad << "'\n";
+    exit(1);
+}
+
+string valorStr = lineaProbabilidad.substr(posEspacio + 1);
+try {
+    eventos[i].probabilidad = stof(valorStr);
+} catch (const invalid_argument&) {
+    cerr << "Error: No se pudo convertir a float el valor: '" << valorStr << "'\n";
+    exit(1);
+} catch (const out_of_range&) {
+    cerr << "Error: Valor fuera de rango para float: '" << valorStr << "'\n";
+    exit(1);
+}
+
         eventos[i].descripcion = leerLineaSegura(archivo);
 
         eventos[i].opcionA_texto = leerLineaSegura(archivo);
