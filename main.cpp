@@ -205,18 +205,18 @@ void combate(Jugador &jugador) {
     int indiceEnemigo = rand() % totalEnemigos;
     Enemigo enemigoActual = enemigos[indiceEnemigo];
 
-    cout << "\n⚔️✨ Te adentras en un claro brillante y... ¡Oh no! Aparece " << enemigoActual.nombre << " con mirada desafiante 💢\n";
-    cout << "🌈 ¡Hora de combatir con coraje y corazón!\n\n";
+    cout << "\n⚔️ Te adentras y... ¡Oh no! Aparece " << enemigoActual.nombre << " con mirada desafiante.\n";
+    cout << "¡Hora de combatir!\n\n";
     cout << "Tú 🧝 | " << enemigoActual.nombre << " 👾\n";
     cout << jugador.vida << " ❤️ | " << enemigoActual.vida << " 💢\n";
 
     while (enemigoActual.vida > 0 && jugador.vida > 0) {
-        cout << "\n🪄 Lanzas un hechizo de ataque con esperanza...\n";
+        cout << "\n🪄 Lanzas un hechizo de ataque con esperanza de hacerle aunque sea algo de daño...\n";
         if (generarFloatAleatorio() < jugador.precision) {
             enemigoActual.vida -= jugador.ataque;
-            cout << "💥 ¡Impacto mágico! Le hiciste " << jugador.ataque << " de daño.\n";
+            cout << "💥 ¡Impacto mágico! Le diste " << jugador.ataque << " de daño.\n";
         } else {
-            cout << "❌ Tu magia falló. El viento susurra decepción.\n";
+            cout << "❌ Tu magia falló. El viento se burla de ti, estamos decepcionados.\n";
         }
 
         cout << "Tú 🧝 | " << enemigoActual.nombre << " 👾\n";
@@ -227,9 +227,9 @@ void combate(Jugador &jugador) {
         cout << "\n👿 " << enemigoActual.nombre << " contraataca con una nube de oscuridad...\n";
         if (generarFloatAleatorio() < enemigoActual.precision) {
             jugador.vida -= enemigoActual.ataque;
-            cout << "💔 Has recibido " << enemigoActual.ataque << " de daño mágico oscuro.\n";
+            cout << "💔 Has recibido " << enemigoActual.ataque << " de daño de magia oscura.\n";
         } else {
-            cout << "🌪️ ¡Esquivaste elegantemente! Como una mariposa guerrera.\n";
+            cout << "🌪️ ¡Siii, lo esquivaste! Como una mariposa guerrera.\n";
         }
 
         cout << "Tú 🧝 | " << enemigoActual.nombre << " 👾\n";
