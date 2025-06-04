@@ -198,57 +198,63 @@ void aplicarEvento(Jugador &jugador) {
 
 void combate(Jugador &jugador) {
     if (totalEnemigos == 0) {
-        cout << "No aparecio ningun enemigo.\n";
+        cout << "🎀 No hay criaturas malvadas por aquí. ¡Por ahora!\n";
         return;
     }
 
     int indiceEnemigo = rand() % totalEnemigos;
     Enemigo enemigoActual = enemigos[indiceEnemigo];
 
-    cout << "\nEntras a una habitacion y encuentras a un monstruo: " << enemigoActual.nombre << "!\n";
-    cout << "Jugador | " << enemigoActual.nombre << "\n";
-    cout << jugador.vida << " | " << enemigoActual.vida << "\n";
+    cout << "\n⚔️✨ Te adentras en un claro brillante y... ¡Oh no! Aparece " << enemigoActual.nombre << " con mirada desafiante 💢\n";
+    cout << "🌈 ¡Hora de combatir con coraje y corazón!\n\n";
+    cout << "Tú 🧝 | " << enemigoActual.nombre << " 👾\n";
+    cout << jugador.vida << " ❤️ | " << enemigoActual.vida << " 💢\n";
 
     while (enemigoActual.vida > 0 && jugador.vida > 0) {
-        cout << "\nJugador golpea a " << enemigoActual.nombre << " por " << jugador.ataque << " de dano!\n";
+        cout << "\n🪄 Lanzas un hechizo de ataque con esperanza...\n";
         if (generarFloatAleatorio() < jugador.precision) {
             enemigoActual.vida -= jugador.ataque;
+            cout << "💥 ¡Impacto mágico! Le hiciste " << jugador.ataque << " de daño.\n";
         } else {
-            cout << "Fallaste el ataque.\n";
-        }
-        cout << "Jugador | " << enemigoActual.nombre << "\n";
-        cout << jugador.vida << " | " << enemigoActual.vida << "\n";
-
-        if (enemigoActual.vida <= 0) {
-            break;
+            cout << "❌ Tu magia falló. El viento susurra decepción.\n";
         }
 
-        cout << "\n" << enemigoActual.nombre << " golpea a Jugador por " << enemigoActual.ataque << " de dano!\n";
+        cout << "Tú 🧝 | " << enemigoActual.nombre << " 👾\n";
+        cout << jugador.vida << " ❤️ | " << enemigoActual.vida << " 💢\n";
+
+        if (enemigoActual.vida <= 0) break;
+
+        cout << "\n👿 " << enemigoActual.nombre << " contraataca con una nube de oscuridad...\n";
         if (generarFloatAleatorio() < enemigoActual.precision) {
             jugador.vida -= enemigoActual.ataque;
+            cout << "💔 Has recibido " << enemigoActual.ataque << " de daño mágico oscuro.\n";
         } else {
-            cout << enemigoActual.nombre << " fallo el ataque.\n";
+            cout << "🌪️ ¡Esquivaste elegantemente! Como una mariposa guerrera.\n";
         }
-        cout << "Jugador | " << enemigoActual.nombre << "\n";
-        cout << jugador.vida << " | " << enemigoActual.vida << "\n";
+
+        cout << "Tú 🧝 | " << enemigoActual.nombre << " 👾\n";
+        cout << jugador.vida << " ❤️ | " << enemigoActual.vida << " 💢\n";
     }
 
     if (jugador.vida <= 0) {
-        cout << "\nHas muerto en combate contra " << enemigoActual.nombre << "...\n";
+        cout << "\n🪦 Te han vencido... pero tu espíritu sigue refulgiendo en el bosque.\n";
         exit(0);
     } else {
-        cout << "\n¡Has derrotado a " << enemigoActual.nombre << "!\n";
-        cout << "\nElige una mejora:\n";
-        cout << "1. +3 Vida\n";
-        cout << "2. +0.2 Precision\n";
-        cout << "3. +5 Ataque\n";
+        cout << "\n🏆 ¡Victoria radiante! Has derrotado a " << enemigoActual.nombre << " con nobleza.\n";
+        cout << "\n💫 Elige una bendición mágica:\n";
+        cout << "1. ✨ +3 Vida (un bálsamo de flores)\n";
+        cout << "2. 🎯 +0.2 Precisión (visión de elfo lunar)\n";
+        cout << "3. 🔥 +5 Ataque (fuerza del dragón dormido)\n";
+
         int opcion;
         cin >> opcion;
+
         if (opcion == 1) jugador.vida += 3;
         else if (opcion == 2) jugador.precision += 0.2f;
         else if (opcion == 3) jugador.ataque += 5;
-        else cout << "Opcion de mejora invalida. No se aplico ninguna mejora.\n";
-        cout << "Mejoras aplicadas. Vida: " << jugador.vida << ", Precision: " << jugador.precision << ", Ataque: " << jugador.ataque << endl;
+        else cout << "🤔 No entendí tu deseo... no se aplicó ninguna bendición.\n";
+
+        cout << "\n🧚 Estado actual: Vida = " << jugador.vida << " | Precisión = " << jugador.precision << " | Ataque = " << jugador.ataque << "\n";
     }
 }
 
